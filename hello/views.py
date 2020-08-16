@@ -10,4 +10,4 @@ from .models import Employee
 
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all().order_by('email')
-    serializer_class = EmployeeSerializer
+    serializer_class = EmployeeSerializer 
