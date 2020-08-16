@@ -1,19 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from .models import Greeting
+# views.py
+from rest_framework import viewsets
 
-# Create your views here.
-def index(request):
-    # return HttpResponse('Hello from Python!')
-    return render(request, "index.html")
+from .serializers import EmployeeSerializer
+from .models import Employee
 
 
-def db(request):
-
-    greeting = Greeting()
-    greeting.save()
-
-    greetings = Greeting.objects.all()
-
-    return render(request, "db.html", {"greetings": greetings})
+class EmployeeViewSet(viewsets.ModelViewSet):
+    queryset = Employee.objects.all().order_by('email')
+    serializer_class = EmployeeSerializer
