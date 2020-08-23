@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import django_heroku
+import json
+from six.moves.urllib import request
+from cryptography.x509 import load_pem_x509_certificate
+from cryptography.hazmat.backends import default_backend
+import ssl
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -41,6 +46,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "hello",
     "rest_framework", 
+    'rest_framework_jwt',
+    'sslserver',
+    'django_extensions',
+    'corsheaders',
+    'social_django'
 ]
 
 MIDDLEWARE = [
@@ -51,7 +61,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
 
 ROOT_URLCONF = "gettingstarted.urls"
 
@@ -118,3 +131,26 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = "/static/"
 
 django_heroku.settings(locals())
+
+
+SOCIAL_AUTH_TRAILING_SLASH = False  # Remove trailing slash from routes
+SOCIAL_AUTH_AUTH0_DOMAIN = 'goodneighbor.us.auth0.com'
+SOCIAL_AUTH_AUTH0_KEY = 'X4r4WuvxMbpMNBf7FPZRTCb1Ong9y62x'
+SOCIAL_AUTH_AUTH0_SECRET = 'FAyjQ0AyF3qWmEz6RGC2MgUprADsQSXjkbWVVd4FB4zm3_YWLED0jcIaOE0WIxA9'
+
+SOCIAL_AUTH_AUTH0_SCOPE = [
+    'openid',
+    'profile',
+    'email'
+]
+
+AUTHENTICATION_BACKENDS = {
+    'hello.auth0backend.Auth0',
+    'django.contrib.auth.backends.ModelBackend'
+}
+
+LOGIN_URL = '/login/auth0'
+LOGIN_REDIRECT_URL = '/dashboard'
+
+
+
