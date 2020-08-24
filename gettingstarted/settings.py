@@ -16,7 +16,7 @@ import json
 from six.moves.urllib import request
 from cryptography.x509 import load_pem_x509_certificate
 from cryptography.hazmat.backends import default_backend
-import ssl
+#import ssl
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     "hello",
     "rest_framework", 
     'rest_framework_jwt',
-    'sslserver',
     'django_extensions',
     'corsheaders',
     'social_django'
