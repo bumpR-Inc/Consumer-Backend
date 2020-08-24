@@ -132,24 +132,24 @@ STATIC_URL = "/static/"
 django_heroku.settings(locals())
 
 
-SOCIAL_AUTH_TRAILING_SLASH = False  # Remove trailing slash from routes
-SOCIAL_AUTH_AUTH0_DOMAIN = 'goodneighbor.us.auth0.com'
-SOCIAL_AUTH_AUTH0_KEY = 'X4r4WuvxMbpMNBf7FPZRTCb1Ong9y62x'
-SOCIAL_AUTH_AUTH0_SECRET = 'FAyjQ0AyF3qWmEz6RGC2MgUprADsQSXjkbWVVd4FB4zm3_YWLED0jcIaOE0WIxA9'
+# SOCIAL_AUTH_TRAILING_SLASH = False  # Remove trailing slash from routes
+# SOCIAL_AUTH_AUTH0_DOMAIN = 'goodneighbor.us.auth0.com'
+# SOCIAL_AUTH_AUTH0_KEY = 'X4r4WuvxMbpMNBf7FPZRTCb1Ong9y62x'
+# SOCIAL_AUTH_AUTH0_SECRET = 'FAyjQ0AyF3qWmEz6RGC2MgUprADsQSXjkbWVVd4FB4zm3_YWLED0jcIaOE0WIxA9'
 
-SOCIAL_AUTH_AUTH0_SCOPE = [
-    'openid',
-    'profile',
-    'email'
-]
+# SOCIAL_AUTH_AUTH0_SCOPE = [
+#     'openid',
+#     'profile',
+#     'email'
+# ]
 
-AUTHENTICATION_BACKENDS = {
-    'hello.auth0backend.Auth0',
-    'django.contrib.auth.backends.ModelBackend'
-}
+# AUTHENTICATION_BACKENDS = {
+#     'hello.auth0backend.Auth0',
+#     'django.contrib.auth.backends.ModelBackend'
+# }
 
-LOGIN_URL = '/login/auth0'
-LOGIN_REDIRECT_URL = '/dashboard'
+# LOGIN_URL = '/login/auth0'
+# LOGIN_REDIRECT_URL = '/dashboard'
 
 
 
