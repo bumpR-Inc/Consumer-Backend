@@ -28,15 +28,6 @@ class Menu(models.Model):
     def get_foodItems(self):
         return self.foodItems
 
-class Preference(models.Model):
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE, default = 0, related_name= "")
-    deliveryMade = models.BooleanField(default=False)
-    foodItem=models.ForeignKey(FoodItem, on_delete=models.CASCADE, default = 0)
-    date = DateField(auto_now_add = True)
-
-    def get_foodItem(self):
-        return self.foodItem
-
 class Profile(models.Model):
     name = models.CharField(max_length = 60)
     email = models.CharField(max_length = 60)
@@ -44,6 +35,14 @@ class Profile(models.Model):
     isManager = models.BooleanField(default=False)
     authZeroID = models.CharField(max_length = 60)
 
+class Preference(models.Model):
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name= "preferences_of_user")
+    deliveryMade = models.BooleanField(default=False)
+    foodItem=models.ForeignKey(FoodItem, on_delete=models.CASCADE, default = 0)
+    date = models.DateField(auto_now_add = True)
+
+    def get_foodItem(self):
+        return self.foodItem
 
 class Employee(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
