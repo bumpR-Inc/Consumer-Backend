@@ -39,6 +39,8 @@ urlpatterns = [
     #path(r'api/private/', views.private),
     path(r'api/fooditem/<int:pk>/',views.FoodItemDetail.as_view(), name='foodItem_detail_view'),
     path(r'api/team/<int:pk>/schedule',views.team_schedule, name='team_schedule_view'),
+    path(r'api/public',views.public, name='public_test'),
+    path(r'api/private',views.private, name='private_test'),
     #path(r'api/index', views.index),
     #path('dashboard', views.dashboard),
     #path('logout', views.logout),
