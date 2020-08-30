@@ -21,14 +21,14 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'profile_info'
         ]
 
+class PendingEmployeeInfoSerializer(serializers.Serializer):
+    name = models.CharField(max_length = 60)
+    email = models.CharField(max_length = 60)
+
+
+
 class ProfileSerializer(serializers.ModelSerializer):
-    foodItem_info=serializers.SerializerMethodField(read_only=True)
-
-    def get_foodItem_info(self,obj):
-        foodItem=obj.foodItem
-        serializer=FoodItemSerializer(foodItem)
-        return serializer.data
-
+    
     class Meta:
         model = Employee
         fields = [
@@ -36,9 +36,6 @@ class ProfileSerializer(serializers.ModelSerializer):
             'name',
             'location',
             'email',
-            'deliveryMade',
-            'foodItem', #ForeignKey
-            'foodItem_info',
             'isManager',
             'authZeroID'
         ]
@@ -60,22 +57,21 @@ class ManagerSerializer(serializers.ModelSerializer):
             'profile',
             'profile_info'
             ]
-class OnboardManagerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = [
-            'name',
-            'email',
-            'location'
-        ]
+class OnboardManagerSerializer(serializers.Serializer):
+    name = models.CharField(max_length = 60)
+    email = models.CharField(max_length = 60)
+    location = models.CharField(max_length = 100)
+    
 
 class OnboardEmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = [
+            'pk',
             'name',
             'email',
-            'location'
+            'location',
+            'authZeroID',
         ]
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -113,6 +109,7 @@ class TeamSerializer(serializers.ModelSerializer):
             'pk',
             'manager',#ManytoMany
             'employees', #ManytoMany
+            'pending_employees',#ManytoMany
             'menu',#ForeignKey
             'menu_info',
             'manager_info',
@@ -123,7 +120,22 @@ class TeamSerializer(serializers.ModelSerializer):
             'thursday',
             'friday',
         ]
+
+class TeamCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = [
+            'pk',
+            'employees',
+        ]
             
+class TeamRegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = [
+            'pk',
+            'pending_employees',
+        ]
 
 class TeamScheduleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -137,6 +149,42 @@ class TeamScheduleSerializer(serializers.ModelSerializer):
             'friday',
         ]
 
+class PreferenceSerializer(serializers.ModelSerializer):
+    foodItem_info=serializers.SerializerMethodField(read_only=True)
+
+    def get_fooditem_info(self,obj):
+        foodItem=obj.foodItem
+        serializer=FoodItemSerializer(foodItem)
+        return serializer.data
+
+    class Meta:
+        model = Preference
+        fields = [
+            'pk',
+            'user',
+            'deliveryMade',
+            'foodItem',
+            'foodItem_info',
+            'date',
+        ]
+class PreferenceGetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Preference
+        fields = [
+            'pk',
+            'date',
+        ]
+
+class PreferenceChooseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Preference
+        fields = [
+            'pk',
+            'foodItem',
+            'date',
+        ]
 
 class RestaurantSerializer(serializers.ModelSerializer):
 
@@ -146,6 +194,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
             'pk',
             'name',
             'location',
+            'picture_url',
         ]
         
 class FoodItemSerializer(serializers.ModelSerializer):
@@ -166,6 +215,7 @@ class FoodItemSerializer(serializers.ModelSerializer):
             'restaurant',#ForeignKey
             'restaurant_info',
             'dietaryRestrictions',
+            'picture_url',
         ]
 
         
@@ -174,7 +224,6 @@ class MenuSerializer(serializers.ModelSerializer):
 
 
     foodItems= serializers.PrimaryKeyRelatedField(queryset=FoodItem.objects.all(), many=True)
-    #foodItems = FoodItemSerializer(many = True, read_only=True)
     foodItems_info=serializers.SerializerMethodField(read_only=True)
 
     def get_foodItems_info(self, obj):
