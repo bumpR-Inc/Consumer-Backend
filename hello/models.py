@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -31,6 +32,8 @@ class Menu(models.Model):
         return self.foodItems
 
 class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_hash = models.CharField(max_length = 60)
     name = models.CharField(max_length = 60)
     email = models.CharField(max_length = 60)
     location = models.CharField(max_length = 60) #deliveryAddress
@@ -53,7 +56,7 @@ class Profile(models.Model):
     def validate_manager(self):
         self.isManager = True
         self.save()
-        
+
 
 class Preference(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name= "preferences_of_user")
@@ -78,8 +81,8 @@ class Manager(models.Model):
 
 class Team(models.Model):
     manager = models.ManyToManyField(Manager)
-    employees = models.ManyToManyField(Employee)
-    pending_employees = models.ManyToManyField(Employee)
+    employees = models.ManyToManyField(Employee, related_name= "employees_list")
+    pending_employees = models.ManyToManyField(Employee, related_name= "pending_employees_list")
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
     monday = models.BooleanField(default=False)
     tuesday = models.BooleanField(default=False)

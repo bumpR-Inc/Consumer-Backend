@@ -11,7 +11,8 @@ from django.contrib.auth.decorators import login_required
 import json
 from rest_framework import authentication, generics, permissions, status
 from urllib.parse import urlencode
-
+from django.contrib.auth.models import User 
+import hashlib
 
 # views.py
 from rest_framework import viewsets
@@ -76,6 +77,10 @@ def public(request):
 def private(request):
     return JsonResponse({'message': 'Hello from a private endpoint! You need to be authenticated to see this.'})
 
+class UserViewSet(viewsets.ModelViewSet): 
+    queryset = User.objects.all() 
+    serializer_class = UserSerializer
+
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all().order_by('email')
     serializer_class = EmployeeSerializer 
@@ -123,11 +128,39 @@ def team_schedule(request, pk):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+#signup endpoint
+@api_view(['POST'])
+def create_auth(request, user_hash):
+    serialized = UserSerializer(data=request.DATA)
+    if serialized.is_valid():
+        user = User(
+            serialized.init_data['email'],
+            serialized.init_data['username'],
+            serialized.init_data['password']
+        )
+        user.save()
+    #if id is not null, search for profile and connect w user
+    if user_hash != null:
+        try:
+            profile = Profile.objects.get(user_hash=user_hash)
+        except profile.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        profile.user = user
+        profile.save()
+
+        return Response(serialized.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 #create 2 views- one for manager, one for employee
 @api_view(['POST'])
 def onboard_manager(request, pk):
     data = OnboardManagerSerializer(request.body).data
     profile = Profile(
+        user = request.user,
         name = data.name,
         email = data.email,
         location = data.location,
@@ -157,10 +190,15 @@ def add_pending_employee(request, pk):
 
     serialized = PendingEmployeeSerializer(data=request.data, many=True)
     for employee in serialized:
-    
+        #getting hashed email object for user_hash
+        hash_object = hashlib.sha256(data.email.encode('utf-8'))
+        hex_dig = hash_object.hexdigest()
+
         pending_employee_profile = Profile(
             name = data.name,
-            email = data.email
+            email = data.email,
+            isManager = False,
+            user_hash = hex_dig
         )
         Profile.save()
         pending_employee = Employee(profile = pending_employee_profile)
@@ -168,6 +206,21 @@ def add_pending_employee(request, pk):
 
         team.pending_employees.add(pending_employee)
         team.save()
+    #send each pending employee an email with a link which contains
+    #their signup code
+    #need to fill this out properly/check email integration
+    # message = render_to_string('emails/activate_account.html', {
+    #             'user': ,
+    #             'domain': ,
+    #             'uid': ,
+    #             'token': ,
+    #         })
+    mail_subject = 'Activate your Good Neighbor Account!'
+    to_email = data.email
+    email = EmailMultiAlternatives(mail_subject, message, to=[to_email])
+    email.content_subtype = 'html'
+    mail.mixed_subtype = 'related'
+    email.send()
 
 #is this a post & patch?
 #confusing
@@ -185,13 +238,17 @@ def onboard_employee(request, pk):
         team = employee.team_set.first()
     except team.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-
-   if request.method == 'PATCH':
+        
+    if request.method == 'PATCH':
+       #am i allowed to do this
+        employee.profile.user = request.user
         serializer = OnboardEmployeeSerializer(employee.profile, data=request.data)
         if serializer.is_valid():
             serializer.save()
             #return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # 
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     team.pending_employees.remove(employee)
     team.employees.add(employee)
@@ -221,9 +278,9 @@ def get_team_menu(request, pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     serializer = MenuSerializer(data = team.get_menu)
     if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #Post to create a user's preference
 
