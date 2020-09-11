@@ -11,6 +11,8 @@ import hello.views
 
 from hello import views
 
+from rest_framework.authtoken import views as auth_views
+
 # To add a new path, first import the app:
 # import blog
 #
@@ -56,6 +58,7 @@ urlpatterns = [
     path(r'api/manager/auth', views.manager_auth, name= 'manager_auth'),
 
     path(r'api/private',views.private, name='private_test'),
+    path('api-token-auth',auth_views.obtain_auth_token, name='api-token-auth')
     #path(r'api/index', views.index),
     #path('dashboard', views.dashboard),
     #path('logout', views.logout),

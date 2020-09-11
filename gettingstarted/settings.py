@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "hello",
     "rest_framework", 
+    "rest_framework.authtoken", 
     'rest_framework_jwt',
     'django_extensions',
     'corsheaders',
@@ -66,30 +67,28 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.RemoteUserMiddleware',
 ]
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'django.contrib.auth.backends.RemoteUserBackend',
-]
+# AUTHENTICATION_BACKENDS = [
+#     'django.contrib.auth.backends.ModelBackend',
+#     'django.contrib.auth.backends.RemoteUserBackend',
+# ]
 
-JWT_AUTH = {
-    'JWT_PAYLOAD_GET_USERNAME_HANDLER':
-        'gettingstarted.utils.jwt_get_username_from_payload_handler',
-    'JWT_DECODE_HANDLER':
-        'gettingstarted.utils.jwt_decode_token',
-    'JWT_ALGORITHM': 'RS256',
-    'JWT_AUDIENCE': 'https://goodneighbor.us.auth0.com/api/v2/',
-    'JWT_ISSUER': 'https://goodneighbor.us.auth0.com/',
-    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
-}
+# JWT_AUTH = {
+#     'JWT_PAYLOAD_GET_USERNAME_HANDLER':
+#         'gettingstarted.utils.jwt_get_username_from_payload_handler',
+#     'JWT_DECODE_HANDLER':
+#         'gettingstarted.utils.jwt_decode_token',
+#     'JWT_ALGORITHM': 'RS256',
+#     'JWT_AUDIENCE': 'https://goodneighbor.us.auth0.com/api/v2/',
+#     'JWT_ISSUER': 'https://goodneighbor.us.auth0.com/',
+#     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+# }
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
 }
 
