@@ -1,10 +1,12 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
 class Restaurant(models.Model):
     name = models.CharField(max_length = 100)
     location = models.CharField(max_length = 100)
+    picture_url = models.CharField(max_length = 160)
 
     def get_name(self):
         return self.name
@@ -13,6 +15,7 @@ class FoodItem(models.Model):
     foodName = models.CharField(max_length=100)
     restaurant = models.ForeignKey(Restaurant, on_delete = models.CASCADE)
     dietaryRestrictions =  models.CharField(max_length=200)
+    picture_url = models.CharField(max_length = 160)
 
     def get_restaurant(self):
         return self.restaurant
@@ -29,11 +32,31 @@ class Menu(models.Model):
         return self.foodItems
 
 class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_hash = models.CharField(max_length = 60)
     name = models.CharField(max_length = 60)
     email = models.CharField(max_length = 60)
     location = models.CharField(max_length = 60) #deliveryAddress
     isManager = models.BooleanField(default=False)
     authZeroID = models.CharField(max_length = 60)
+
+    def get_name(self):
+        return self.name
+    
+    def get_email(self):
+        return self.email
+
+    def get_isManager(self):
+        return self.isManager
+
+    def validate_employee(self):
+        self.isManager = False
+        self.save()
+
+    def validate_manager(self):
+        self.isManager = True
+        self.save()
+
 
 class Preference(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name= "preferences_of_user")
@@ -56,11 +79,11 @@ class Manager(models.Model):
     def get_profile(self):
         return self.profile
 
-
 class Team(models.Model):
     manager = models.ManyToManyField(Manager)
-    employees = models.ManyToManyField(Employee)
-    menu =models.ForeignKey(Menu, on_delete=models.CASCADE)
+    employees = models.ManyToManyField(Employee, related_name= "employees_list")
+    pending_employees = models.ManyToManyField(Employee, related_name= "pending_employees_list")
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
     monday = models.BooleanField(default=False)
     tuesday = models.BooleanField(default=False)
     wednesday = models.BooleanField(default=False)
@@ -72,6 +95,9 @@ class Team(models.Model):
 
     def get_employees(self):
         return self.employees
+
+    def get_pending_employees(self):
+        return self.pending_employees
     
     def get_menu(self):
         return self.menu

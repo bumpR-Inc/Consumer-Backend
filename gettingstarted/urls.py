@@ -28,6 +28,7 @@ router.register(r'api/foodItem', FoodItemViewSet)
 router.register(r'api/menu', MenuViewSet)
 router.register(r'api/manager', ManagerViewSet)
 router.register(r'api/team', TeamViewSet)
+router.register(r'api/user', UserViewSet, base_name ='user_api')
 #router.register(r'^api/public/', views.public)
 #router.register(r'^api/private/', views.private)
 

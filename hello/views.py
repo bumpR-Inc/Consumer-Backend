@@ -10,6 +10,9 @@ from django.contrib.auth.decorators import login_required
 import json
 from rest_framework import authentication, generics, permissions, status
 from urllib.parse import urlencode
+from django.contrib.auth.models import User 
+import hashlib
+
 from rest_framework import viewsets
 from .models import *
 from .serializers import *
@@ -26,6 +29,10 @@ def public(request):
 @api_view(['GET'])
 def private(request):
     return JsonResponse({'message': 'Hello from a private endpoint! You need to be authenticated to see this.'})
+
+class UserViewSet(viewsets.ModelViewSet): 
+    queryset = User.objects.all() 
+    serializer_class = UserSerializer
 
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all().order_by('email')
@@ -61,12 +68,10 @@ class TeamDetail(generics.RetrieveUpdateDestroyAPIView):
 
 @api_view(['PATCH'])
 def team_schedule(request, pk):
-    """
-    List all code snippets, or create a new snippet.
-    """
+    
     try:
         team = Team.objects.get(pk=pk)
-    except Team.DoesNotExist:
+    except team.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'PATCH':
@@ -76,30 +81,191 @@ def team_schedule(request, pk):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+#signup endpoint
+@api_view(['POST'])
+def create_auth(request, user_hash):
+    serialized = UserSerializer(data=request.DATA)
+    if serialized.is_valid():
+        user = User(
+            serialized.init_data['email'],
+            serialized.init_data['username'],
+            serialized.init_data['password']
+        )
+        user.save()
+    #if id is not null, search for profile and connect w user
+    if user_hash != null:
+        try:
+            profile = Profile.objects.get(user_hash=user_hash)
+        except profile.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        profile.user = user
+        profile.save()
+
+        return Response(serialized.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 #create 2 views- one for manager, one for employee
-def onboard_manager(request):
+@api_view(['POST'])
+def onboard_manager(request, pk):
     data = OnboardManagerSerializer(request.body).data
     profile = Profile(
+        user = request.user,
         name = data.name,
         email = data.email,
-        location = data.location
+        location = data.location,
+        isManager = True
+        #need to add in auth0id here
     )
     profile.save()
     manager = Manager(profile = profile)
     manager.save()
-    return Response(ManagerSerializer(manager).data)
+    #added team creation here - how to return this as well?
+    team = Team(manager= manager)
+    team.save()
+    return Response(ManagerSerializer(manager).data) 
 
-def onboard_employee(request):
-    data = OnboardEmployeeSerializer(request.body).data
-    profile = Profile(
-        name = data.name,
-        email = data.email,
-        location = data.location
-    )
-    profile.save()
-    employee = Employee(profile = profile)
-    employee.save()
-    return Response(EmployeeSerializer(employee).data)
+
+#need to add endpoint for emailing employees for registration
+# once their emails are inputted into page?
+#add them to pending_employees in the team 
+#this only adds one employee
+#post & patch?
+@api_view(['POST'])
+def add_pending_employee(request, pk):
+    try:
+        team = Team.objects.get(pk=pk)
+    except team.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    serialized = PendingEmployeeSerializer(data=request.data, many=True)
+    for employee in serialized:
+        #getting hashed email object for user_hash
+        hash_object = hashlib.sha256(data.email.encode('utf-8'))
+        hex_dig = hash_object.hexdigest()
+
+        pending_employee_profile = Profile(
+            name = data.name,
+            email = data.email,
+            isManager = False,
+            user_hash = hex_dig
+        )
+        Profile.save()
+        pending_employee = Employee(profile = pending_employee_profile)
+        pending_employee.save()
+
+        team.pending_employees.add(pending_employee)
+        team.save()
+    #send each pending employee an email with a link which contains
+    #their signup code
+    #need to fill this out properly/check email integration
+    # message = render_to_string('emails/activate_account.html', {
+    #             'user': ,
+    #             'domain': ,
+    #             'uid': ,
+    #             'token': ,
+    #         })
+    mail_subject = 'Activate your Good Neighbor Account!'
+    to_email = data.email
+    email = EmailMultiAlternatives(mail_subject, message, to=[to_email])
+    email.content_subtype = 'html'
+    mail.mixed_subtype = 'related'
+    email.send()
+
+#is this a post & patch?
+#confusing
+@api_view(['PATCH'])
+def onboard_employee(request, pk):
+    #adding employee to their team here by pk of team created
+    #find employee obj based on pk somehow
+    try:
+        employee = Employee.objects.get(pk=pk)
+    except employee.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    #get the team object from the employee based on pending list
+    try:
+        team = employee.team_set.first()
+    except team.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+        
+    if request.method == 'PATCH':
+       #am i allowed to do this
+        employee.profile.user = request.user
+        serializer = OnboardEmployeeSerializer(employee.profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            #return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # 
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    team.pending_employees.remove(employee)
+    team.employees.add(employee)
+    team.save()
+
+    
+    
+    #used serializer I created for adding employee- how do i know 
+    #if it will add the employee or replace the current ones?
+    # serializer = TeamCreateSerializer(data = employee)
+    # if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # return Response(EmployeeSerializer(employee).data)
+
+
+#get for menu items on a specific team's menu
+#returns serialized menu object which contains foodItems and their infos
+#do i need to serialize this menu again lol
+@api_view(['GET'])
+def get_team_menu(request, pk):
+    try:
+        team = Team.objects.get(pk=pk)
+    except team.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = MenuSerializer(data = team.get_menu)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#Post to create a user's preference
+
+#Patch to update a user's Preference 
+#find preference by user id, and then update it??
+@api_view(['GET','PATCH'])
+def choose_meal_preference(request, pk):
+    #should I match the pk of the user & date here, or the pk of just the
+    #Preference obj since it has already been created?
+    if request.method == 'GET':
+        data = PreferenceGetSerializer(request.body).data
+        try:
+            preference = Preference.objects.filter(user=pk, date = data.date).first()
+
+        except preference.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    #TODO: fix - would this work?
+    if request.method == 'PATCH':
+        try:
+            preference = Preference.objects.filter(pk=pk)
+
+        except preference.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = PreferenceChooseSerializer(preference, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    
 
 
 # @api_view(['GET'])
