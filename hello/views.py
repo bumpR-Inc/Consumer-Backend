@@ -77,6 +77,13 @@ def public(request):
 def private(request):
     return JsonResponse({'message': 'Hello from a private endpoint! You need to be authenticated to see this.'})
 
+#test endpt
+# @api_view(['GET'])
+# @permission_classes([AllowAny])
+# def manager_auth(request):
+#     return JsonResponse({'message': 'Hello from a public endpoint! You don\'t need to be authenticated to see this.'})
+
+@permission_classes([AllowAny])
 class UserViewSet(viewsets.ModelViewSet): 
     queryset = User.objects.all() 
     serializer_class = UserSerializer
@@ -128,16 +135,34 @@ def team_schedule(request, pk):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 #signup endpoint
 @api_view(['POST'])
-def create_auth(request, user_hash):
-    serialized = UserSerializer(data=request.DATA)
+@permission_classes([AllowAny])
+def manager_auth(request):
+    if request.method == "POST":
+
+        serialized = UserSerializer(data=request.data)
+        print(serialized.is_valid())
+        if serialized.is_valid():
+            print(serialized.validated_data)
+            user = User(
+                email = serialized.validated_data['email'],
+                username = serialized.validated_data['username'],
+                password = serialized.validated_data['password']
+            )
+            user.save()
+    return JsonResponse({'message':'Hello World'})
+    
+#employee signup endpoint
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def employee_auth(request, user_hash):
+    serialized = UserSerializer(data=request.data)
     if serialized.is_valid():
         user = User(
-            serialized.init_data['email'],
-            serialized.init_data['username'],
-            serialized.init_data['password']
+            serialized.validated_data['email'],
+            serialized.validated_data['username'],
+            serialized.validated_data['password']
         )
         user.save()
     #if id is not null, search for profile and connect w user
@@ -153,6 +178,7 @@ def create_auth(request, user_hash):
         return Response(serialized.data, status=status.HTTP_201_CREATED)
     else:
         return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 #create 2 views- one for manager, one for employee

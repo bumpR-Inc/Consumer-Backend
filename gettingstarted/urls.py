@@ -27,6 +27,8 @@ router.register(r'api/menu', MenuViewSet)
 router.register(r'api/manager', ManagerViewSet)
 router.register(r'api/team', TeamViewSet)
 router.register(r'api/user', UserViewSet, base_name ='user_api')
+#adding all more in depth apis here
+
 #router.register(r'^api/public/', views.public)
 #router.register(r'^api/private/', views.private)
 
@@ -40,7 +42,19 @@ urlpatterns = [
     #path(r'api/private/', views.private),
     path(r'api/fooditem/<int:pk>/',views.FoodItemDetail.as_view(), name='foodItem_detail_view'),
     path(r'api/team/<int:pk>/schedule',views.team_schedule, name='team_schedule_view'),
+    #path(r'api/manager/authorization', views.manager_auth, name= 'manager_authorization'),
+    path(r'api/employee/authorization', views.employee_auth, name= 'employee_authorization'),
+    path(r'api/manager/<int:pk>/onboard', views.onboard_manager, name='onboard_manager'),
+    path(r'api/team/<int:pk>/pending-employees', views.add_pending_employee, name='add_employees'),
+    path(r'api/employee/<int:pk>/onboard', views.onboard_employee, name= 'onboard_employee'),
+    path(r'api/team/<int:pk>/menu', views.get_team_menu, name='team_menu_view'),
+    path(r'api/employee/<int:pk>/meal-preference', views.choose_meal_preference, name='choose_meal_preference'),
+
+
+
     path(r'api/public',views.public, name='public_test'),
+    path(r'api/manager/auth', views.manager_auth, name= 'manager_auth'),
+
     path(r'api/private',views.private, name='private_test'),
     #path(r'api/index', views.index),
     #path('dashboard', views.dashboard),
