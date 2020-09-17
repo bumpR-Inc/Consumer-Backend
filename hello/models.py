@@ -32,13 +32,12 @@ class Menu(models.Model):
         return self.foodItems
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     user_hash = models.CharField(max_length = 60)
     name = models.CharField(max_length = 60)
     email = models.CharField(max_length = 60)
     location = models.CharField(max_length = 60) #deliveryAddress
     isManager = models.BooleanField(default=False)
-    authZeroID = models.CharField(max_length = 60)
 
     def get_name(self):
         return self.name
@@ -83,7 +82,7 @@ class Team(models.Model):
     manager = models.ManyToManyField(Manager)
     employees = models.ManyToManyField(Employee, related_name= "employees_list")
     pending_employees = models.ManyToManyField(Employee, related_name= "pending_employees_list")
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, blank=True, null = True)
     monday = models.BooleanField(default=False)
     tuesday = models.BooleanField(default=False)
     wednesday = models.BooleanField(default=False)

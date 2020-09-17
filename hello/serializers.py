@@ -28,23 +28,31 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'profile_info'
         ]
 
-class PendingEmployeeInfoSerializer(serializers.Serializer):
-    name = models.CharField(max_length = 60)
-    email = models.CharField(max_length = 60)
+# class PendingEmployeeInfoSerializer(serializers.Serializer):
+#     name = models.CharField(max_length = 60)
+#     email = models.CharField(max_length = 60)
 
-
+class PendingEmployeeInfoSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Profile
+        fields = [
+            'name',
+            'email',
+        ]
 
 class ProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
-        model = Employee
+        model = Profile
         fields = [
             'pk',
+            'user',
+            'user_hash',
             'name',
             'location',
             'email',
             'isManager',
-            'authZeroID'
         ]
 
         
@@ -62,8 +70,9 @@ class ManagerSerializer(serializers.ModelSerializer):
         fields = [
             'pk',
             'profile',
-            'profile_info'
+            'profile_info',
             ]
+            
 class OnboardManagerSerializer(serializers.Serializer):
     name = models.CharField(max_length = 60)
     email = models.CharField(max_length = 60)
@@ -78,7 +87,6 @@ class OnboardEmployeeSerializer(serializers.ModelSerializer):
             'name',
             'email',
             'location',
-            'authZeroID',
         ]
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -154,6 +162,13 @@ class TeamScheduleSerializer(serializers.ModelSerializer):
             'wednesday',
             'thursday',
             'friday',
+        ]
+class TeamMenuSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = [
+            'pk',
+            'menu',
         ]
 
 class PreferenceSerializer(serializers.ModelSerializer):
