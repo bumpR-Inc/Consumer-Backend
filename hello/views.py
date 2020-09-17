@@ -319,13 +319,13 @@ def get_team_menu(request, pk):
     print(menu)
     team_menu = Menu.objects.get(pk = menu.pk)
     print(team_menu)
-    serializer = MenuSerializer(data = team.get_menu().__dict__)
+    serializer = MenuSerializer(team.get_menu())
     #print(serializer)
-    print(serializer.is_valid())
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # print(serializer.is_valid())
+    # if serializer.is_valid():
+    #     serializer.save()
+    return Response(serializer.data)
+    #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #Post to create a user's preference
 
