@@ -30,6 +30,9 @@ def public(request):
 def private(request):
     return JsonResponse({'message': 'Hello from a private endpoint! You need to be authenticated to see this.'})
 
+def email_preview(request):
+    return render(request, 'email.html', {'employee': 'Bob', 'manager': 'Samantha'})
+
 class UserViewSet(viewsets.ModelViewSet): 
     queryset = User.objects.all() 
     serializer_class = UserSerializer

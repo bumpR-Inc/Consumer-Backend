@@ -44,7 +44,8 @@ urlpatterns = [
     path(r'api/team/<int:pk>/schedule',views.team_schedule, name='team_schedule_view'),
     path(r'api/public',views.public, name='public_test'),
     path(r'api/private',views.private, name='private_test'),
-    path('api-token-auth',auth_views.obtain_auth_token, name='api-token-auth')
+    path('api-token-auth',auth_views.obtain_auth_token, name='api-token-auth'),
+    path('email-preview', views.email_preview, name='email-preview')
     #path(r'api/index', views.index),
     #path('dashboard', views.dashboard),
     #path('logout', views.logout),
