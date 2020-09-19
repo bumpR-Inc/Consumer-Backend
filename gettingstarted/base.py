@@ -16,6 +16,7 @@ import json
 from six.moves.urllib import request
 from cryptography.x509 import load_pem_x509_certificate
 from cryptography.hazmat.backends import default_backend
+import dj_database_url
 #import ssl
 
 
@@ -25,14 +26,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "CHANGE_ME!!!! (P.S. the SECRET_KEY environment variable will be used, if set, instead)."
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -113,15 +106,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "gettingstarted.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE" : "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3")
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -159,14 +143,6 @@ STATICFILES_DIRS = [
 ]
 
 django_heroku.settings(locals())
-
-#Settings for sending out emails
-
-EMAIL_HOST_USER = 'goodneighborsubs@gmail.com' #this is a testing account
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com' # Wha is this
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS')
-EMAIL_PORT = 587
 
 
 # SOCIAL_AUTH_TRAILING_SLASH = False  # Remove trailing slash from routes
