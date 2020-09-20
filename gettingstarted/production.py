@@ -10,7 +10,8 @@ if os.environ['DEBUG'].lower() in ['true', 't', 'yes', 'y']:
 else:
 	DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '.herokuapp.com']
+ALLOWED_HOSTS += ['.herokuapp.com']
+CORS_ORIGIN_WHITELIST += []
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases

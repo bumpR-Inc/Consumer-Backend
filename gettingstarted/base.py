@@ -19,6 +19,8 @@ from cryptography.hazmat.backends import default_backend
 import dj_database_url
 #import ssl
 
+ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost', "http://localhost:3000", "https://localhost:3000"]
+CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "https://localhost:3000"]
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
