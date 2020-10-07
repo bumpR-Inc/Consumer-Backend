@@ -11,7 +11,7 @@ else:
 	DEBUG = False
 
 ALLOWED_HOSTS += ['.herokuapp.com']
-CORS_ORIGIN_WHITELIST += []
+CORS_ORIGIN_WHITELIST += ["*"]
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
