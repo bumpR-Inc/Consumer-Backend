@@ -14,6 +14,11 @@ from django.contrib.auth.models import User
 import hashlib
 import requests
 
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+
 from rest_framework import viewsets
 from .models import *
 from .serializers import *
@@ -79,6 +84,10 @@ class FoodItemDetail(generics.RetrieveUpdateDestroyAPIView):
 class TeamDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
+
+class PreferenceViewSet(viewsets.ModelViewSet):
+    queryset = Preference.objects.all().order_by('date')
+    serializer_class = PreferenceSerializer 
 
 
 @api_view(['PATCH'])
@@ -176,6 +185,34 @@ def onboard_manager(request):
         team.save()
         return Response(ManagerSerializer(manager).data) 
 
+@api_view(['GET'])
+def email_test(request):
+    try:
+        profile = Profile.objects.get(user = request.user)
+    except profile.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+    # message = render_to_string('emails/activate_account.html', {
+    #             'user': request.user,
+    #             'domain': current_site.domain,
+    #             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+    #             'token': account_activation_token.make_token(user),
+    #         })
+    link = "https://goodneighbordelivery.herokuapp.com/?route=2&code=" + profile.user_hash 
+    print(profile.user_hash, link)
+    message = render_to_string('email.html', {
+        'employee': profile.name,
+        'manager': profile.name,
+        'link': link,
+    })
+    mail_subject = 'Activate your Good Neighbor Account!'
+    to_email = profile.email
+    email = EmailMultiAlternatives(mail_subject, message, to=[to_email])
+    email.content_subtype = 'html'
+    email.mixed_subtype = 'related'
+    email.send()
+    return JsonResponse({'message':'Hello World'})
 
 #need to add endpoint for emailing employees for registration
 # once their emails are inputted into page?
@@ -187,6 +224,11 @@ def add_pending_employee(request, pk):
     try:
         team = Team.objects.get(pk=pk)
     except team.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        profile_manager = Profile.objects.get(user = request.user)
+    except profile_manager.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     data = request.data
@@ -223,6 +265,20 @@ def add_pending_employee(request, pk):
 
             team.pending_employees.add(pending_employee)
             team.save()
+
+            link = "https://goodneighbordelivery.herokuapp.com/?route=2&code=" + pending_employee_profile.user_hash 
+            print(pending_employee_profile.user_hash, link)
+            message = render_to_string('email.html', {
+                'employee': pending_employee_profile.name,
+                'manager': profile_manager.name,
+                'link': link,
+            })
+            mail_subject = 'Activate your Good Neighbor Account!'
+            to_email = pending_employee_profile.email
+            email = EmailMultiAlternatives(mail_subject, message, to=[to_email])
+            email.content_subtype = 'html'
+            email.mixed_subtype = 'related'
+            email.send()
     return JsonResponse({'message':'Hello World'})
     #send each pending employee an email with a link which contains
     #their signup code
@@ -330,6 +386,18 @@ def get_team_menu(request, pk):
     #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #Post to create a user's preference
+@api_view(['POST'])
+def create_preference(request):
+    try:
+        profile = Profile.objects.get(user = request.user)
+    except profile.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    preference_object = Preference(
+        user = profile
+    )
+    preference_object.save()
+    return JsonResponse({'message':'Hello World'})
 
 #Patch to update a user's Preference 
 #find preference by user id, and then update it??

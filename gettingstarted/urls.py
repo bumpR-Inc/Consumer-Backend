@@ -29,6 +29,7 @@ router.register(r'api/menu', MenuViewSet)
 router.register(r'api/manager', ManagerViewSet)
 router.register(r'api/team', TeamViewSet)
 router.register(r'api/profile', ProfileViewSet)
+router.register(r'api/preferences', PreferenceViewSet)
 router.register(r'api/user', UserViewSet, base_name ='user_api')
 #adding all more in depth apis here
 
@@ -53,6 +54,9 @@ urlpatterns = [
     path(r'api/team/<int:pk>/menu', views.get_team_menu, name='team_menu_view'),
     path(r'api/team/<int:pk>/set-menu', views.set_team_menu, name='team_menu_set'),
     path(r'api/employee/<int:pk>/meal-preference', views.choose_meal_preference, name='choose_meal_preference'),
+    path(r'api/team/<int:pk>/menu', views.get_team_menu, name='team_menu_view'),
+    path(r'api/preferences/create', views.create_preference, name= 'create_preference'),
+    path(r'api/email-test', views.email_test, name= 'email_test'),
 
 
 

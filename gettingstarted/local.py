@@ -20,7 +20,7 @@ DATABASES = {
 
 
 #Settings for sending out emails
-
+EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST_USER = 'goodneighborsubs@gmail.com' #this is a testing account
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com' # Wha is this

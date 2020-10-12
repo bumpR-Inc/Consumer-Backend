@@ -58,7 +58,7 @@ class Profile(models.Model):
 
 
 class Preference(models.Model):
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name= "preferences_of_user")
+    user = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name= "preferences_of_user")
     deliveryMade = models.BooleanField(default=False)
     foodItem=models.ForeignKey(FoodItem, on_delete=models.CASCADE, default = 0)
     date = models.DateField(auto_now_add = True)
