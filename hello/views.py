@@ -14,10 +14,12 @@ from django.contrib.auth.models import User
 import hashlib
 import requests
 
+
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from email.mime.image import MIMEImage
 
 from rest_framework import viewsets
 from .models import *
@@ -201,7 +203,11 @@ def email_test(request):
     #         })
     link = "https://goodneighbordelivery.herokuapp.com/?route=2&code=" + profile.user_hash 
     print(profile.user_hash, link)
+    fp = open('static/img/logo.png', 'rb')
+    logo = MIMEImage(fp.read())
+    logo.add_header('Content-ID', '<logo>')
     message = render_to_string('email.html', {
+        'img1': logo, 
         'employee': profile.name,
         'manager': profile.name,
         'link': link,
@@ -211,6 +217,7 @@ def email_test(request):
     email = EmailMultiAlternatives(mail_subject, message, to=[to_email])
     email.content_subtype = 'html'
     email.mixed_subtype = 'related'
+    # email.attach(logo)
     email.send()
     return JsonResponse({'message':'Hello World'})
 
