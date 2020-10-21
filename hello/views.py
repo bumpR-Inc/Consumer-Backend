@@ -117,14 +117,20 @@ def manager_auth(request):
         print(serialized.is_valid())
         if serialized.is_valid():
             print(serialized.validated_data)
-            user = User(
-                email = serialized.validated_data['email'],
-                username = serialized.validated_data['username']
-            )
-            user.set_password(serialized.validated_data['password'])
+            # user = User(
+            #     email = serialized.validated_data['email'],
+            #     username = serialized.validated_data['username']
+            # )
+            # user.set_password(serialized.validated_data['password'])
+            user = User.objects.create_user(serialized.validated_data['username'], serialized.validated_data['email'], serialized.validated_data['password'])
             user.save()
-    return JsonResponse({'message':'Hello World'})
-    
+            try:
+                print(user)
+            except user.DoesNotExist:
+                return JsonResponse({'message':'Unable to create user'})
+            
+            return JsonResponse({'message':'Hello World'})
+    return JsonResponse({'message':'Unable to create user'})
 #employee signup endpoint
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -147,15 +153,21 @@ def employee_auth(request, user_hash):
     print(serialized.is_valid())
     if serialized.is_valid():
         print(serialized.validated_data)
-        user = User(
-            email = serialized.validated_data['email'],
-            username = serialized.validated_data['username']
-        )
-        user.set_password(serialized.validated_data['password'])
+        # user = User(
+        #     email = serialized.validated_data['email'],
+        #     username = serialized.validated_data['username']
+        # )
+        # user.set_password(serialized.validated_data['password'])
+        # user.save()
+        user = User.objects.create_user(serialized.validated_data['username'], serialized.validated_data['email'], serialized.validated_data['password'])
         user.save()
 
         profile.user = user
         profile.save()
+        try:
+            print(user)
+        except user.DoesNotExist:
+            return JsonResponse({'message':'Unable to create user'})
 
         return Response(serialized.data, status=status.HTTP_201_CREATED)
     
