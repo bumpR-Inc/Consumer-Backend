@@ -11,16 +11,18 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-import django_heroku
 import json
+import six
 from six.moves.urllib import request
 from cryptography.x509 import load_pem_x509_certificate
 from cryptography.hazmat.backends import default_backend
 import dj_database_url
 #import ssl
 
+CORS_ORIGIN_ALLOW_ALL = True # If this is used then `CORS_ORIGIN_WHITELIST` will not have any effect
+CORS_ALLOW_CREDENTIALS = True
 ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost', "http://localhost:3000", "https://localhost:3000"]
-CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "https://localhost:3000"]
+CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "https://localhost:3000", "https://localhost:3001", "http://localhost:3001", "https://localhost:3002", "http://localhost:3002", "http://localhost:3002"]
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,13 +41,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "hello",
+    'hello',
     "rest_framework", 
     "rest_framework.authtoken", 
     'rest_framework_jwt',
     'django_extensions',
     'corsheaders',
     'social_django'
+
 ]
 
 MIDDLEWARE = [
@@ -62,21 +65,21 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.RemoteUserMiddleware',
 ]
 
-# AUTHENTICATION_BACKENDS = [
-#     'django.contrib.auth.backends.ModelBackend',
-#     'django.contrib.auth.backends.RemoteUserBackend',
-# ]
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'django.contrib.auth.backends.RemoteUserBackend',
+]
 
-# JWT_AUTH = {
-#     'JWT_PAYLOAD_GET_USERNAME_HANDLER':
-#         'gettingstarted.utils.jwt_get_username_from_payload_handler',
-#     'JWT_DECODE_HANDLER':
-#         'gettingstarted.utils.jwt_decode_token',
-#     'JWT_ALGORITHM': 'RS256',
-#     'JWT_AUDIENCE': 'https://goodneighbor.us.auth0.com/api/v2/',
-#     'JWT_ISSUER': 'https://goodneighbor.us.auth0.com/',
-#     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
-# }
+JWT_AUTH = {
+    'JWT_PAYLOAD_GET_USERNAME_HANDLER':
+        'gettingstarted.utils.jwt_get_username_from_payload_handler',
+    'JWT_DECODE_HANDLER':
+        'gettingstarted.utils.jwt_decode_token',
+    'JWT_ALGORITHM': 'RS256',
+    'JWT_AUDIENCE': 'https://goodneighbor.us.auth0.com/api/v2/',
+    'JWT_ISSUER': 'https://goodneighbor.us.auth0.com/',
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
@@ -84,6 +87,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ),
 }
 
@@ -144,7 +150,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
-django_heroku.settings(locals())
 
 
 # SOCIAL_AUTH_TRAILING_SLASH = False  # Remove trailing slash from routes

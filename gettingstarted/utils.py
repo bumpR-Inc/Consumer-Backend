@@ -6,8 +6,28 @@ import jwt
 import requests
 
 def jwt_get_username_from_payload_handler(payload):
+    print(payload)
     username = payload.get('sub').replace('|', '.')
-    authenticate(remote_user=username)
+    user = authenticate(remote_user=username)
+    print(type(user))
+    profile = Profile(
+        user = user
+    )
+
+    try:
+        user.email = payload.get('https://www.goodneighbor.delivery/email')
+        profile.email = user.email
+    except:
+        pass
+    try:
+        name = payload.get('https://www.goodneighbor.delivery/name').split(' ')
+        user.first_name = name[0]
+        user.last_name = name[1]
+        profile.name = payload.get('https://www.goodneighbor.delivery/name')
+    except:
+        pass
+    user.save()
+    profile.save()
     return username
 
 def jwt_decode_token(token):
@@ -22,4 +42,6 @@ def jwt_decode_token(token):
         raise Exception('Public key not found.')
 
     issuer = 'https://{}/'.format('goodneighbor.us.auth0.com')
-    return jwt.decode(token, public_key, audience='YOUR_API_IDENTIFIER', issuer=issuer, algorithms=['RS256'])
+    decoded =  jwt.decode(token, public_key, audience='https://goodneighbor.us.auth0.com/api/v2/', issuer=issuer, algorithms=['RS256'])
+    print("decoded:" ,decoded)
+    return decoded
