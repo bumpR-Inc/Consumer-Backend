@@ -197,13 +197,12 @@ def restaurant_orders(request, restaurant):
     return orders
 
 #return orders of specific restaurant after now
-@permission_classes([AllowAny])
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def restaurant_current_orders(request, restaurant):
 
     try:
-        orders = Order.objects.get(restaurant = Restaurant.get(name=restaurant))
+        orders = Order.objects.get(restaurant = Restaurant.get(pk=restaurant))
     except orders.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -215,8 +214,8 @@ def restaurant_current_orders(request, restaurant):
     return orders
 
 #return restaurant orders on a specific date
-@permission_classes([AllowAny])
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def restaurant_day_orders(request, restaurant, date):
 
     try:

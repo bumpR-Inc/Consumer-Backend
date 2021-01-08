@@ -3,6 +3,6 @@ venv
 staticfiles
 .env
 *.env
-db.sqlite3
+#db.sqlite3
 getting-started/*
 authTest.sh
