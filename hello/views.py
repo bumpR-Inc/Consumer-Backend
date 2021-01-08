@@ -15,6 +15,7 @@ import hashlib
 import requests
 from functools import wraps
 import jwt
+import datetime
 
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
@@ -139,6 +140,11 @@ class ScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ScheduleSerializer
 
 @permission_classes([AllowAny])
+class ScheduleCreate(generics.CreateAPIView):
+    queryset = Schedule.objects.all().order_by('restaurant')
+    serializer_class = ScheduleSerializer
+
+@permission_classes([AllowAny])
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all().order_by('restaurant')
     serializer_class = OrderSerializer
@@ -147,6 +153,85 @@ class OrderViewSet(viewsets.ModelViewSet):
 class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all().order_by('restaurant')
     serializer_class = OrderSerializer
+
+@permission_classes([AllowAny])
+class OrderCreate(generics.CreateAPIView):
+    queryset = Order.objects.all().order_by('restaurant')
+    serializer_class = OrderSerializer
+
+#returns orders of specific user
+@permission_classes([AllowAny])
+@api_view(['GET'])
+def user_orders(request, user):
+    try:
+        orders = Order.objects.get(user = request.user)
+    except orders.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    return orders
+
+#return orders of user past current time
+@permission_classes([AllowAny])
+@api_view(['GET'])
+def user_current_orders(request, user):
+    try:
+        orders = Order.objects.get(user = request.user)
+    except orders.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        orders = [x for x in orders if (x.deliveryTime > datetime.now() and x.deliveryMade is False)]
+    except orders.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    return orders
+
+#return orders of specific restaurant
+@permission_classes([AllowAny])
+@api_view(['GET'])
+def restaurant_orders(request, restaurant):
+    try:
+        orders = Order.objects.get(restaurant = Restaurant.get(name=restaurant))
+    except orders.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    return orders
+
+#return orders of specific restaurant after now
+@permission_classes([AllowAny])
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def restaurant_current_orders(request, restaurant):
+
+    try:
+        orders = Order.objects.get(restaurant = Restaurant.get(name=restaurant))
+    except orders.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        orders = [x for x in orders if (x.deliveryTime > datetime.now() and x.deliveryMade is False)]
+    except orders.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    return orders
+
+#return restaurant orders on a specific date
+@permission_classes([AllowAny])
+@api_view(['GET'])
+def restaurant_day_orders(request, restaurant, date):
+
+    try:
+        orders = Order.objects.get(restaurant = Restaurant.get(name=restaurant))
+    except orders.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        orders = [x for x in orders if x.deliveryTime.date() == date.date()]
+    except orders.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    return orders
+
+
 
 
 # def index(request):

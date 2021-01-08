@@ -47,7 +47,7 @@ class Schedule(models.Model):
     specific_quota_status = models.BooleanField(default= False)
     quota = models.IntegerField()
     numOrders = models.IntegerField()
-    #orders = models.ForeignKey(Order, related_name="schedules")
+    #orders = modelsrs.ForeignKey(Order, related_name="schedules")
 
 
 
@@ -60,7 +60,7 @@ class Order(models.Model):
     orderTime = models.DateTimeField(auto_now_add = True)
     location = models.CharField(max_length = 100)
     menuItem=models.ForeignKey(MenuItem, on_delete=models.CASCADE, default = 0)
-    pricePaid = models.IntegerField()
+    pricePaid = models.FloatField()
 
     def get_menuItem(self):
          return self.menuItem

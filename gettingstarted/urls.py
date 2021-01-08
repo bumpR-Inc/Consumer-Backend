@@ -26,6 +26,7 @@ router = routers.DefaultRouter()
 router.register(r'api/users', UserViewSet)
 router.register(r'api/profiles', ProfileViewSet)
 router.register(r'api/restaurants', RestaurantViewSet)
+router.register(r'api/schedules', ScheduleViewSet)
 router.register(r'api/menuItems', MenuItemSet)
 router.register(r'api/orders', OrderViewSet)
 
@@ -59,7 +60,20 @@ urlpatterns = [
     path('api/restaurantscreate', csrf_exempt(views.RestaurantCreate.as_view()), name ='restaurantscreate'),
     path('api/<int:pk>/menuItemsedit', csrf_exempt(views.MenuItemDetail.as_view()), name = 'menuItemsedit'),
     path('api/menuItemscreate', csrf_exempt(views.MenuItemCreate.as_view()), name ='menuItemscreate'),
+    path('api/schedulesedit', csrf_exempt(views.ScheduleDetail.as_view()), name ='scheduleedit'),
+    path('api/schedulescreate', csrf_exempt(views.ScheduleCreate.as_view()), name ='schedulecreate'),
     path('api/ordersedit', views.OrderDetail, name = 'ordersedit'),
+    path('api/orderscreate', csrf_exempt(views.OrderCreate.as_view()), name ='ordercreate'),
+    #returns orders of specific user
+    path('api/userOrders', views.user_orders, name = 'userOrders'),
+    #return orders of user past current time
+    path('api/userCurrentOrders', views.user_current_orders, name = 'userCurrentOrders'),
+    #return orders of specific restaurant
+    path('api/orders/<restaurant>/', views.restaurant_orders, name = 'restaurantOrders'),
+    #return orders of specific restaurant after now
+    path('api/orders/<restaurant>/currentOrders', views.restaurant_current_orders, name = 'restaurantCurrentOrders'),
+    #return restaurant orders on a specific date
+    path('api/orders/<restaurant>/<date>', views.restaurant_day_orders, name = 'restaurantDayOrders')
 
 
     # path(r'api/fooditem/<int:pk>/',views.FoodItemDetail.as_view(), name='foodItem_detail_view'),

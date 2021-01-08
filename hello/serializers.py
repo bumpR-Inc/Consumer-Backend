@@ -78,7 +78,7 @@ class OrderSerializer(serializers.ModelSerializer):
     menuItem_info = serializers.SerializerMethodField(read_only=True)
     restaurant_info=serializers.SerializerMethodField(read_only=True)
 
-    def get_menuitem_info(self,obj):
+    def get_menuItem_info(self,obj):
         menuItem=obj.menuItem
         serializer=MenuItemSerializer(menuItem)
         return serializer.data
@@ -95,6 +95,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'user',
             'restaurant',
             'restaurant_info',
+            "schedule",
             'menuItem',
             'menuItem_info',
             'deliveryTime',

@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 import json
 import jwt
 import requests
+from hello.models import *
 
 def jwt_get_username_from_payload_handler(payload):
     print(payload)
