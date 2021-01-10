@@ -69,11 +69,11 @@ urlpatterns = [
     #return orders of user past current time
     path('api/userCurrentOrders', views.user_current_orders, name = 'userCurrentOrders'),
     #return orders of specific restaurant
-    path('api/orders/<restaurant>/', views.restaurant_orders, name = 'restaurantOrders'),
+    path('api/restaurantOrders/<restaurant>/', views.restaurant_orders, name = 'restaurantOrders'),
     #return orders of specific restaurant after now
-    path('api/orders/<restaurant>/currentOrders', views.restaurant_current_orders, name = 'restaurantCurrentOrders'),
+    path('api/restaurantOrders/<restaurant>/currentOrders', views.restaurant_current_orders, name = 'restaurantCurrentOrders'),
     #return restaurant orders on a specific date in format YYYY-MM-DD
-    path('api/orders/<restaurant>/<date>', views.restaurant_day_orders, name = 'restaurantDayOrders')
+    path('api/restaurantOrders/<restaurant>/<date>', views.restaurant_day_orders, name = 'restaurantDayOrders')
 
 
     # path(r'api/fooditem/<int:pk>/',views.FoodItemDetail.as_view(), name='foodItem_detail_view'),

@@ -169,14 +169,14 @@ def user_orders(request, user):
     if orders is None:
         return None
 
-    serializer = OrderSerializer(data=orders, many= True)
+    serializer = OrderSerializer(orders, many= True)
 
-    if serializer.is_valid():
-        print(serializer)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # if serializer.is_valid():
+    #     print(serializer)
+    #     serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # else:
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 #return orders of user past current time
@@ -193,32 +193,34 @@ def user_current_orders(request, user):
         print(orders)
         return None
 
-    serializer = OrderSerializer(data=orders, many= True)
+    serializer = OrderSerializer(orders, many= True)
 
-    if serializer.is_valid():
-        print(serializer)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # if serializer.is_valid():
+    #     print(serializer)
+    #     serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # else:
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 #return orders of specific restaurant
-@permission_classes([AllowAny])
+
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def restaurant_orders(request, restaurant):
     orders = Order.objects.filter(restaurant = restaurant)
     if orders is None:
         return None
 
-    serializer = OrderSerializer(data=orders, many= True)
+    serializer = OrderSerializer(orders, many= True)
+    print(orders)
 
-    if serializer.is_valid():
-        print(serializer)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #if serializer.is_valid():
+        #print(serializer)
+        #serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # else:
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -239,14 +241,14 @@ def restaurant_current_orders(request, restaurant):
         print(orders)
         return None
 
-    serializer = OrderSerializer(data=orders, many= True)
+    serializer = OrderSerializer(orders, many= True)
 
-    if serializer.is_valid():
-        print(serializer)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # if serializer.is_valid():
+    #     print(serializer)
+    #     serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # else:
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #return restaurant orders on a specific date
 @api_view(['GET'])
@@ -263,14 +265,14 @@ def restaurant_day_orders(request, restaurant, date):
     if orders is None:
         return None
 
-    serializer = OrderSerializer(data=orders, many= True)
+    serializer = OrderSerializer(orders, many= True)
 
-    if serializer.is_valid():
-        print(serializer)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # if serializer.is_valid():
+    #     print(serializer)
+    #     serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # else:
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
