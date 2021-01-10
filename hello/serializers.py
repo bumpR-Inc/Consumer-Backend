@@ -65,6 +65,7 @@ class MenuItemSerializer(serializers.ModelSerializer):
         fields = [
             'pk',
             'foodName',
+            'description',
             'restaurant',#ForeignKey
             'restaurant_info',
             'dietaryRestrictions',

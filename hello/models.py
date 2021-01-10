@@ -27,6 +27,7 @@ class Restaurant(models.Model):
 
 class MenuItem(models.Model):
      foodName = models.CharField(max_length=100)
+     description = models.CharField(max_length=250)
      restaurant = models.ForeignKey(Restaurant, on_delete = models.CASCADE, related_name="menuItems")
      dietaryRestrictions =  models.CharField(max_length=200)
      picture_url = models.CharField(max_length = 160)

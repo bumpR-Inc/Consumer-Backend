@@ -72,7 +72,7 @@ urlpatterns = [
     path('api/orders/<restaurant>/', views.restaurant_orders, name = 'restaurantOrders'),
     #return orders of specific restaurant after now
     path('api/orders/<restaurant>/currentOrders', views.restaurant_current_orders, name = 'restaurantCurrentOrders'),
-    #return restaurant orders on a specific date
+    #return restaurant orders on a specific date in format YYYY-MM-DD
     path('api/orders/<restaurant>/<date>', views.restaurant_day_orders, name = 'restaurantDayOrders')
 
 

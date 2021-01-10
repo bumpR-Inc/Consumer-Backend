@@ -15,8 +15,7 @@ import hashlib
 import requests
 from functools import wraps
 import jwt
-import datetime
-
+from datetime import datetime
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.sites.shortcuts import get_current_site
@@ -159,76 +158,120 @@ class OrderCreate(generics.CreateAPIView):
     queryset = Order.objects.all().order_by('restaurant')
     serializer_class = OrderSerializer
 
+
+
 #returns orders of specific user
 @permission_classes([AllowAny])
 @api_view(['GET'])
 def user_orders(request, user):
-    try:
-        orders = Order.objects.get(user = request.user)
-    except orders.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    return orders
+    
+    orders = Order.objects.filter(user = request.user)
+    if orders is None:
+        return None
+
+    serializer = OrderSerializer(data=orders, many= True)
+
+    if serializer.is_valid():
+        print(serializer)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 #return orders of user past current time
 @permission_classes([AllowAny])
 @api_view(['GET'])
 def user_current_orders(request, user):
-    try:
-        orders = Order.objects.get(user = request.user)
-    except orders.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
 
-    try:
-        orders = [x for x in orders if (x.deliveryTime > datetime.now() and x.deliveryMade is False)]
-    except orders.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    orders = Order.objects.filter(user = request.user)
+    if orders is None:
+        return None
 
-    return orders
+    orders = [x for x in orders if (x.deliveryTime.timestamp() > datetime.now().timestamp() and x.deliveryMade is False)]
+    if orders is None:
+        print(orders)
+        return None
+
+    serializer = OrderSerializer(data=orders, many= True)
+
+    if serializer.is_valid():
+        print(serializer)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 #return orders of specific restaurant
 @permission_classes([AllowAny])
 @api_view(['GET'])
 def restaurant_orders(request, restaurant):
-    try:
-        orders = Order.objects.get(restaurant = Restaurant.get(name=restaurant))
-    except orders.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    orders = Order.objects.filter(restaurant = restaurant)
+    if orders is None:
+        return None
 
-    return orders
+    serializer = OrderSerializer(data=orders, many= True)
+
+    if serializer.is_valid():
+        print(serializer)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 #return orders of specific restaurant after now
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def restaurant_current_orders(request, restaurant):
 
-    try:
-        orders = Order.objects.get(restaurant = Restaurant.get(pk=restaurant))
-    except orders.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
 
-    try:
-        orders = [x for x in orders if (x.deliveryTime > datetime.now() and x.deliveryMade is False)]
-    except orders.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    orders = Order.objects.filter(restaurant =restaurant)
+    if orders is None:
+        print(orders)
+        return None
 
-    return orders
+
+    orders = [x for x in orders if (x.deliveryTime.timestamp() > datetime.now().timestamp() and x.deliveryMade is False)]
+    if orders is None:
+        print(orders)
+        return None
+
+    serializer = OrderSerializer(data=orders, many= True)
+
+    if serializer.is_valid():
+        print(serializer)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #return restaurant orders on a specific date
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def restaurant_day_orders(request, restaurant, date):
 
-    try:
-        orders = Order.objects.get(restaurant = Restaurant.get(name=restaurant))
-    except orders.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    orders = Order.objects.filter(restaurant = restaurant)
+    if orders is None:
+        return None
 
-    try:
-        orders = [x for x in orders if x.deliveryTime.date() == date.date()]
-    except orders.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    date_time_obj = datetime.strptime(date, '%Y-%m-%d')
+    #%H:%M:%S.%f')
+    orders = [x for x in orders if x.deliveryTime.date() == date_time_obj.date()]
+    if orders is None:
+        return None
 
-    return orders
+    serializer = OrderSerializer(data=orders, many= True)
+
+    if serializer.is_valid():
+        print(serializer)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
@@ -348,7 +391,7 @@ def restaurant_day_orders(request, restaurant, date):
 # @api_view(['POST'])
 # @permission_classes([AllowAny])
 # def employee_auth(request, user_hash):
-#     #if id is not null, search for profile and connect w user
+#     #if id is not None, search for profile and connect w user
 #     if user_hash == "":
 #         return JsonResponse({'message':'Must have an invite link/code to join team!'})
 #     if user_hash != "":
