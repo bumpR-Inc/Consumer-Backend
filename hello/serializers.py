@@ -106,6 +106,38 @@ class OrderSerializer(serializers.ModelSerializer):
             'pricePaid',
         ]
 
+class OrderCreateSerializer(serializers.Serializer):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, related_name= "orders" )
+    deliveryTime= models.DateTimeField(auto_now= False, auto_now_add= False)
+    location = models.CharField(max_length = 100)
+    #menuItem=models.ForeignKey(MenuItem, on_delete=models.CASCADE, default = 0)
+    menuItems =serializers.ListField(child=serializers.IntegerField())
+    pricePaid = models.FloatField()
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    menuItem_info = serializers.SerializerMethodField(read_only=True)
+    order_info = serializers.SerializerMethodField(read_only=True)
+
+    def get_menuItem_info(self,obj):
+        menuItem=obj.menuItem
+        serializer=MenuItemSerializer(menuItem)
+        return serializer.data
+
+    def get_order_info(self,obj):
+        order=obj.order
+        serializer=OrderSerializer(order)
+        return serializer.data
+    
+
+    class Meta: 
+        model = OrderItem 
+        fields = [
+            'pk',
+            'menuItem',
+            'menuItem_info',
+            'order',
+            'order_info',
+        ]
 
 
 # class EmployeeSerializer(serializers.ModelSerializer):

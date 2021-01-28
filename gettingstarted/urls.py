@@ -63,7 +63,8 @@ urlpatterns = [
     path('api/schedulesedit', csrf_exempt(views.ScheduleDetail.as_view()), name ='scheduleedit'),
     path('api/schedulescreate', csrf_exempt(views.ScheduleCreate.as_view()), name ='schedulecreate'),
     path('api/ordersedit', views.OrderDetail, name = 'ordersedit'),
-    path('api/orderscreate', csrf_exempt(views.OrderCreate.as_view()), name ='ordercreate'),
+    #path('api/orderscreate', csrf_exempt(views.OrderCreate.as_view()), name ='ordercreate'),
+    path('api/orderscreate', views.OrderCreate, name = 'ordercreate'),
     #returns orders of specific user
     path('api/userOrders', views.user_orders, name = 'userOrders'),
     #return orders of user past current time
