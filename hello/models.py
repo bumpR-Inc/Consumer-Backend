@@ -60,11 +60,18 @@ class Order(models.Model):
     deliveryMade = models.BooleanField(default=False)
     orderTime = models.DateTimeField(auto_now_add = True)
     location = models.CharField(max_length = 100)
-    menuItem=models.ForeignKey(MenuItem, on_delete=models.CASCADE, default = 0)
+    #menuItem=models.ForeignKey(MenuItem, on_delete=models.CASCADE, default = 0)
     pricePaid = models.FloatField()
+
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name= "order_items")
+    menuItem = models.ForeignKey(MenuItem, on_delete = models.PROTECT, related_name="order_items")
 
     def get_menuItem(self):
          return self.menuItem
+
 
 # class Restaurant(models.Model):
 #     name = models.CharField(max_length = 100)

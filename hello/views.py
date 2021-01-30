@@ -153,12 +153,63 @@ class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all().order_by('restaurant')
     serializer_class = OrderSerializer
 
-@permission_classes([AllowAny])
-class OrderCreate(generics.CreateAPIView):
-    queryset = Order.objects.all().order_by('restaurant')
-    serializer_class = OrderSerializer
+# @permission_classes([AllowAny])
+# class OrderCreate(generics.CreateAPIView):
+#     queryset = Order.objects.all().order_by('restaurant')
+#     serializer_class = OrderSerializer
 
+#@permission_classes([AllowAny])
+#get current day schedule, if doesnt exist, create a new
+#add to popularity of menuItem
+@api_view(['GET'])
+def OrderCreate(request, user):
+    serialized = OrderCreateSerializer(data=request.data)
+    print(serialized.is_valid())
+    user = Profile.objects.get(user = request.user)
+    if user is None:
+        return("You must be logged in to order!")
+    
+    date = request.data['deliveryTime']
+    date_time_obj = datetime.strptime(date, '%Y-%m-%d')
+    schedule = Schedule.objects.get(date = date_time_obj)
 
+    if schedule is None:
+        schedule = Schedule(
+            restaurant = request.data['restaurant'],
+            date = date_time_obj,
+            specific_quota_status = False,
+            quota = 0,
+            numOrders =1
+        )
+        schedule.save()
+    else:
+        schedule.numOrders += 1
+    
+    if serialized.is_valid():
+        order = Order(
+            user = Profile.objects.get(user = request.user),
+            restaurant = request.data['restaurant'],
+            schedule = schedule,
+            orderTime = datetime.now(),
+            deliveryMade = False,
+            deliveryTime = request.data['deliveryTime'],
+            location = request.data['location'],
+            pricePaid = request.date['pricePaid']
+         )
+        order.save()
+
+    menuItems = request.data['menuItems']
+    for m in menuItems:
+        menuItem = MenuItem.objects.get(pk = m)
+        if menuItem is not None:
+
+            orderItem = OrderItem(
+                order = order,
+                menuItem = menuItem
+            )
+            orderItem.save()
+
+            menuItem.popularity += 1
 
 #returns orders of specific user
 @permission_classes([AllowAny])
