@@ -161,8 +161,11 @@ class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
 #@permission_classes([AllowAny])
 #get current day schedule, if doesnt exist, create a new
 #add to popularity of menuItem
-@api_view(['GET'])
-def OrderCreate(request, user):
+@api_view(['POST'])
+def OrderCreate(request):
+    print("finddd")
+    print(request.user)
+
     serialized = OrderCreateSerializer(data=request.data)
     print(serialized.is_valid())
     user = Profile.objects.get(user = request.user)
@@ -171,11 +174,10 @@ def OrderCreate(request, user):
     
     date = request.data['deliveryTime']
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
-    schedule = Schedule.objects.get(date = date_time_obj)
 
-    if schedule is None:
+    if not Schedule.objects.filter(date = date_time_obj).exists():
         schedule = Schedule(
-            restaurant = request.data['restaurant'],
+            restaurant = Restaurant.objects.get(pk=request.data['restaurant']),
             date = date_time_obj,
             specific_quota_status = False,
             quota = 0,
@@ -183,18 +185,20 @@ def OrderCreate(request, user):
         )
         schedule.save()
     else:
+        schedule = Schedule.objects.get(date = date_time_obj)
         schedule.numOrders += 1
+
     
     if serialized.is_valid():
         order = Order(
             user = Profile.objects.get(user = request.user),
-            restaurant = request.data['restaurant'],
+            restaurant = Restaurant.objects.get(pk=request.data['restaurant']),
             schedule = schedule,
             orderTime = datetime.now(),
             deliveryMade = False,
             deliveryTime = request.data['deliveryTime'],
             location = request.data['location'],
-            pricePaid = request.date['pricePaid']
+            pricePaid = request.data['pricePaid']
          )
         order.save()
 
@@ -210,6 +214,8 @@ def OrderCreate(request, user):
             orderItem.save()
 
             menuItem.popularity += 1
+    return Response(serialized.data, status=status.HTTP_201_CREATED)
+    
 
 #returns orders of specific user
 @permission_classes([AllowAny])

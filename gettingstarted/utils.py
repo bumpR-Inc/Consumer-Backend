@@ -11,27 +11,36 @@ def jwt_get_username_from_payload_handler(payload):
     username = payload.get('sub').replace('|', '.')
     user = authenticate(remote_user=username)
 
-    if not User.objects.get(id=user.id):
-        print(type(user))
-        profile = Profile(
-            user = user
-        )
-
+    if not User.objects.filter(id=user.id).exists():
         try:
             user.email = payload.get('https://www.goodneighbor.delivery/email')
-            profile.email = user.email
         except:
             pass
         try:
             name = payload.get('https://www.goodneighbor.delivery/name').split(' ')
             user.first_name = name[0]
             user.last_name = name[1]
-            profile.name = payload.get('https://www.goodneighbor.delivery/name')
         except:
             pass
         user.save()
+
+    if not Profile.objects.filter(user=user).exists():
+        profile = Profile(
+            user = user
+        )
+
+        try:
+            profile.email = user.email
+        except:
+            pass
+        try:
+            profile.name = payload.get('https://www.goodneighbor.delivery/name')
+        except:
+            pass
         profile.save()
+
     return username
+
 
 def jwt_decode_token(token):
     header = jwt.get_unverified_header(token)
