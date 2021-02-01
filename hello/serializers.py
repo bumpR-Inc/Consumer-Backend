@@ -97,8 +97,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'restaurant',
             'restaurant_info',
             "schedule",
-            'menuItem',
-            'menuItem_info',
             'deliveryTime',
             'deliveryMade',
             'orderTime',
@@ -107,6 +105,7 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
 class OrderCreateSerializer(serializers.Serializer):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, related_name= "orders" )
     deliveryTime= models.DateTimeField(auto_now= False, auto_now_add= False)
     location = models.CharField(max_length = 100)
     menuItems =serializers.ListField(child=serializers.IntegerField())
