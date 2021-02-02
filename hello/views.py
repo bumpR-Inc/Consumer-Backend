@@ -174,10 +174,12 @@ def OrderCreate(request):
     
     date = request.data['deliveryTime']
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
+    menuItems = request.data['menuItems']
+    restaurant = menuItems[1].restaurant
 
     if not Schedule.objects.filter(date = date_time_obj).exists():
         schedule = Schedule(
-            restaurant = Restaurant.objects.get(pk=request.data['restaurant']),
+            restaurant = restaurant,
             date = date_time_obj,
             specific_quota_status = False,
             quota = 0,
@@ -192,7 +194,7 @@ def OrderCreate(request):
     if serialized.is_valid():
         order = Order(
             user = Profile.objects.get(user = request.user),
-            restaurant = Restaurant.objects.get(pk=request.data['restaurant']),
+            restaurant = restaurant,
             schedule = schedule,
             orderTime = datetime.now(),
             deliveryMade = False,
@@ -202,7 +204,6 @@ def OrderCreate(request):
          )
         order.save()
 
-    menuItems = request.data['menuItems']
     for m in menuItems:
         menuItem = MenuItem.objects.get(pk = m)
         if menuItem is not None:
@@ -260,40 +261,49 @@ def user_current_orders(request, user):
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-#return orders of specific restaurant
+#return orders of specific restaurant after now (unfulfilled)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def restaurant_orders(request, restaurant):
-    orders = Order.objects.filter(restaurant = restaurant)
+
+    schedules = Schedule.objects.filter(date.date() >= datetime.now().date())
+    if schedules is None:
+        return None
+    orders = []
+    for schedule in schedules:
+        orders += schedule.orders
     if orders is None:
         return None
 
+
+    orders = [x for x in orders if (x.deliveryTime.timestamp() > datetime.now().timestamp() or x.deliveryMade is False)]
+    if orders is None:
+        print(orders)
+        return None
+
     serializer = OrderSerializer(orders, many= True)
-    print(orders)
 
-    #if serializer.is_valid():
-        #print(serializer)
-        #serializer.save()
     return Response(serializer.data, status=status.HTTP_201_CREATED)
-    # else:
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
-#return orders of specific restaurant after now
+
+#return orders of specific restaurant after now for same day (unfulfilled)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def restaurant_current_orders(request, restaurant):
 
 
-    orders = Order.objects.filter(restaurant =restaurant)
+    schedule = Schedule.objects.filter(date.date() == datetime.now().date())
+    if schedule is None:
+        return None
+    orders = schedule.orders
     if orders is None:
-        print(orders)
         return None
 
 
-    orders = [x for x in orders if (x.deliveryTime.timestamp() > datetime.now().timestamp() and x.deliveryMade is False)]
+    orders = [x for x in orders if (x.deliveryTime.timestamp() > datetime.now().timestamp() or x.deliveryMade is False)]
     if orders is None:
         print(orders)
         return None
@@ -307,20 +317,26 @@ def restaurant_current_orders(request, restaurant):
     # else:
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#return restaurant orders on a specific date
+#return restaurant orders on a specific date (fulfilled & unfulfilled)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def restaurant_day_orders(request, restaurant, date):
 
-    orders = Order.objects.filter(restaurant = restaurant)
+    date_time_obj = datetime.strptime(date, '%Y-%m-%d')
+
+
+    schedule = Schedule.objects.filter(date.date() == date_time_obj.date())
+    if schedule is None:
+        return None
+    orders = schedule.orders
     if orders is None:
         return None
 
-    date_time_obj = datetime.strptime(date, '%Y-%m-%d')
+    
     #%H:%M:%S.%f')
-    orders = [x for x in orders if x.deliveryTime.date() == date_time_obj.date()]
-    if orders is None:
-        return None
+    # orders = [x for x in orders if x.deliveryTime.date() == date_time_obj.date()]
+    # if orders is None:
+    #     return None
 
     serializer = OrderSerializer(orders, many= True)
 

@@ -54,7 +54,7 @@ class Schedule(models.Model):
 
 class Order(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name= "orders_of_user")
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, related_name= "orders" )
+    #restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, related_name= "orders" )
     schedule = models.ForeignKey(Schedule, on_delete=models.PROTECT, related_name= "orders")
     deliveryTime= models.DateTimeField(auto_now= False, auto_now_add= False)
     deliveryMade = models.BooleanField(default=False)
