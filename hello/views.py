@@ -175,7 +175,7 @@ def OrderCreate(request):
     date = request.data['deliveryTime']
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
     menuItems = request.data['menuItems']
-    restaurant = menuItems[1].restaurant
+    restaurant = MenuItem.objects.get(pk = menuItems[1]).restaurant
 
     if not Schedule.objects.filter(date = date_time_obj).exists():
         schedule = Schedule(
