@@ -266,23 +266,24 @@ def user_current_orders(request, user):
 @permission_classes([AllowAny])
 def restaurant_orders(request, restaurant):
 
-    schedules = Schedule.objects.filter(date.date() >= datetime.now().date())
-    if schedules is None:
-        return None
+    schedules = Schedule.objects.filter(date__gte = datetime.now().date(), restaurant= restaurant)
+    if not schedules.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    print(schedules)
     orders = []
     for schedule in schedules:
-        orders += schedule.orders
-    if orders is None:
-        return None
+        orders.append(Order.objects.filter(schedule = schedule))
 
+    if orders is []:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-    orders = [x for x in orders if (x.deliveryTime.timestamp() > datetime.now().timestamp() or x.deliveryMade is False)]
-    if orders is None:
-        print(orders)
-        return None
+    print(orders)
+    orders = [x for x in orders if (x[0].deliveryTime.timestamp() > datetime.now().timestamp() or x[0].deliveryMade is False)]
+    if orders is []:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-    serializer = OrderSerializer(orders, many= True)
-
+    print(orders)
+    serializer = OrderSerializer(orders[0], many= True)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -294,18 +295,17 @@ def restaurant_orders(request, restaurant):
 def restaurant_current_orders(request, restaurant):
 
 
-    schedule = Schedule.objects.filter(date.date() == datetime.now().date())
-    if schedule is None:
-        return None
-    orders = schedule.orders
-    if orders is None:
-        return None
+    schedule = Schedule.objects.filter(date= datetime.now().date(), restaurant= restaurant)
+    if not schedule.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    orders = Order.objects.filter(schedule = schedule[0])
+    if not orders.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
     orders = [x for x in orders if (x.deliveryTime.timestamp() > datetime.now().timestamp() or x.deliveryMade is False)]
-    if orders is None:
-        print(orders)
-        return None
+    if not orders.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     serializer = OrderSerializer(orders, many= True)
 
@@ -324,21 +324,22 @@ def restaurant_day_orders(request, restaurant, date):
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
 
 
-    schedule = Schedule.objects.filter(date.date() == date_time_obj.date())
-    if schedule is None:
-        return None
-    orders = schedule.orders
-    if orders is None:
-        return None
+    schedule = Schedule.objects.filter(date = date_time_obj.date(), restaurant=restaurant)
+    if not schedule.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    orders = Order.objects.filter(schedule = schedule[0])
+    if not orders.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     
     #%H:%M:%S.%f')
     # orders = [x for x in orders if x.deliveryTime.date() == date_time_obj.date()]
     # if orders is None:
     #     return None
-
+    #print(orders)
     serializer = OrderSerializer(orders, many= True)
-
+    #print(serializer.data)
     # if serializer.is_valid():
     #     print(serializer)
     #     serializer.save()

@@ -69,9 +69,9 @@ urlpatterns = [
     path('api/userOrders', views.user_orders, name = 'userOrders'),
     #return orders of user past current time
     path('api/userCurrentOrders', views.user_current_orders, name = 'userCurrentOrders'),
-    #return orders of specific restaurant
-    path('api/restaurantOrders/<restaurant>/', views.restaurant_orders, name = 'restaurantOrders'),
     #return orders of specific restaurant after now
+    path('api/restaurantOrders/<restaurant>/', views.restaurant_orders, name = 'restaurantOrders'),
+    #return orders of specific restaurant after now for same day (unfulfilled)
     path('api/restaurantOrders/<restaurant>/currentOrders', views.restaurant_current_orders, name = 'restaurantCurrentOrders'),
     #return restaurant orders on a specific date in format YYYY-MM-DD
     path('api/restaurantOrders/<restaurant>/<date>', views.restaurant_day_orders, name = 'restaurantDayOrders')
