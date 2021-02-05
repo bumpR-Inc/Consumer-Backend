@@ -173,7 +173,7 @@ def OrderCreate(request):
         return("You must be logged in to order!")
     
     date = request.data['deliveryTime']
-    date_time_obj = datetime.strptime(date, '%Y-%m-%d')
+    date_time_obj = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
     menuItems = request.data['menuItems']
     restaurant = MenuItem.objects.get(pk = menuItems[1]).restaurant
 
