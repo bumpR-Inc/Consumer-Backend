@@ -194,7 +194,6 @@ def OrderCreate(request):
     if serialized.is_valid():
         order = Order(
             user = Profile.objects.get(user = request.user),
-            restaurant = restaurant,
             schedule = schedule,
             orderTime = datetime.now(),
             deliveryMade = False,
