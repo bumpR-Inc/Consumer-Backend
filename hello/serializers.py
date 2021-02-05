@@ -76,13 +76,11 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
 
-
     class Meta:
         model = Order
         fields = [
             'pk',
             'user',
-            'restaurant_info',
             "schedule",
             'deliveryTime',
             'deliveryMade',
