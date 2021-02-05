@@ -76,19 +76,12 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
 
-    restaurant_info=serializers.SerializerMethodField(read_only=True)
-
-    def get_restaurant_info(self,obj):
-        restaurant=obj.restaurant
-        serializer=RestaurantSerializer(restaurant)
-        return serializer.data
 
     class Meta:
         model = Order
         fields = [
             'pk',
             'user',
-            'restaurant',
             'restaurant_info',
             "schedule",
             'deliveryTime',
@@ -99,7 +92,7 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
 class OrderCreateSerializer(serializers.Serializer):
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, related_name= "orders" )
+    #restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, related_name= "orders" )
     deliveryTime= models.DateTimeField(auto_now= False, auto_now_add= False)
     location = models.CharField(max_length = 100)
     #menuItem=models.ForeignKey(MenuItem, on_delete=models.CASCADE, default = 0)
