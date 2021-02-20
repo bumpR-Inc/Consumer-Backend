@@ -26,9 +26,12 @@ router = routers.DefaultRouter()
 router.register(r'api/users', UserViewSet)
 router.register(r'api/profiles', ProfileViewSet)
 router.register(r'api/restaurants', RestaurantViewSet)
-router.register(r'api/schedules', ScheduleViewSet)
+router.register(r'api/deliveryDay', DeliveryDayViewSet)
+router.register(r'api/restaurantDeliveryDay', RestaurantDeliveryDayViewSet)
 router.register(r'api/menuItems', MenuItemSet)
 router.register(r'api/orders', OrderViewSet)
+router.register(r'api/orderItems', OrderItemViewSet)
+
 
 # router.register(r'api/employees', EmployeeViewSet)
 # router.register(r'api/restaurant', RestaurantViewSet)
@@ -51,28 +54,41 @@ urlpatterns = [
     #path("admin/", admin.site.urls),
     path(r'', include(router.urls)),
     #path(r'api/', include('rest_framework.urls', namespace='rest_framework')),
-    
+    path('admin/', admin.site.urls),
     path('api/public', views.public),
     path('api/private', views.private),
-    path('api/private-scoped', views.private_scoped),
     path('api/profilesedit', views.ProfileDetail, name ='profilesedit'),
     path('api/restaurantsedit', csrf_exempt(views.RestaurantDetail.as_view()), name ='restaurantsedit'),
     path('api/restaurantscreate', csrf_exempt(views.RestaurantCreate.as_view()), name ='restaurantscreate'),
     path('api/<int:pk>/menuItemsedit', csrf_exempt(views.MenuItemDetail.as_view()), name = 'menuItemsedit'),
     path('api/menuItemscreate', csrf_exempt(views.MenuItemCreate.as_view()), name ='menuItemscreate'),
-    path('api/schedulesedit', csrf_exempt(views.ScheduleDetail.as_view()), name ='scheduleedit'),
-    path('api/schedulescreate', csrf_exempt(views.ScheduleCreate.as_view()), name ='schedulecreate'),
+    path('api/deliveryDayedit', csrf_exempt(views.DeliveryDayDetail.as_view()), name ='deliveryDayedit'),
+    path('api/deliveryDaycreate', csrf_exempt(views.DeliveryDayCreate.as_view()), name ='deliveryDaycreate'),
+    path('api/restaurantDeliveryDayedit', csrf_exempt(views.RestaurantDeliveryDayDetail.as_view()), name ='restaurantDeliveryDayedit'),
+    path('api/restaurantDeliveryDaycreate', csrf_exempt(views.RestaurantDeliveryDayCreate.as_view()), name ='restaurantDeliveryDaycreate'),
     path('api/ordersedit', views.OrderDetail, name = 'ordersedit'),
     #path('api/orderscreate', csrf_exempt(views.OrderCreate.as_view()), name ='ordercreate'),
+
+    #creates a deliveryDay object and all restaurantDeliveryDay objs for a certain date with a given quots (if quota = 0, then no quota enforced)
+    path('api/scheduleParent/<date>/<quota>/', views.scheduleParent, name = 'scheduleParent'),
+    #allows user to update their phone number
+    path('api/updatePhoneNumber', views.updatePhoneNumber, name = 'updatePhoneNumber'),
+    #creates an order 
     path('api/orderscreate', views.OrderCreate, name = 'ordercreate'),
     #returns orders of specific user
     path('api/userOrders', views.user_orders, name = 'userOrders'),
     #return orders of user past current time
     path('api/userCurrentOrders', views.user_current_orders, name = 'userCurrentOrders'),
+    #return all orders on a specific date
+    path('api/dateOrders/<date>/', views.dateOrders, name = 'dateOrders'),
+    #return number of orders on a specific date
+    path('api/numOrders/<date>/', views.numOrders, name = 'numOrders'),
+
     #return orders of specific restaurant after now
-    path('api/restaurantOrders/<restaurant>/', views.restaurant_orders, name = 'restaurantOrders'),
+    #path('api/restaurantOrders/<restaurant>/', views.restaurant_orders, name = 'restaurantOrders'),
     #return orders of specific restaurant after now for same day (unfulfilled)
-    path('api/restaurantOrders/<restaurant>/currentOrders', views.restaurant_current_orders, name = 'restaurantCurrentOrders'),
+    #path('api/restaurantOrders/<restaurant>/currentOrders', views.restaurant_current_orders, name = 'restaurantCurrentOrders'),
+
     #return restaurant orders on a specific date in format YYYY-MM-DD
     path('api/restaurantOrders/<restaurant>/<date>', views.restaurant_day_orders, name = 'restaurantDayOrders')
 

@@ -2,6 +2,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import *
+#from phonenumber_field.modelfields import PhoneNumberField
 
 
 
@@ -21,8 +22,11 @@ class ProfileSerializer(serializers.ModelSerializer):
             'name',
             'email',
             'address',
+            'phoneNumber',
         ]
 
+class OrderCreateSerializer(serializers.Serializer):
+    phoneNumber = models.CharField(max_length = 20, default= "0")
 
 class RestaurantSerializer(serializers.ModelSerializer):
 
@@ -37,18 +41,30 @@ class RestaurantSerializer(serializers.ModelSerializer):
             'quota',
         ]
 
-class ScheduleSerializer(serializers.ModelSerializer):
+class DeliveryDaySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Schedule
+        model = DeliveryDay
+        fields = [
+            'pk',
+            'date',
+            'daily_quota_status',
+            'quota',
+        ]
+
+class RestaurantDeliveryDaySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RestaurantDeliveryDay
         fields = [
             'pk',
             'restaurant',
+            'deliveryDay', 
             'date',
             'specific_quota_status',
             'quota',
-            'numOrders',
         ]
+
 
 class MenuItemSerializer(serializers.ModelSerializer):
 
@@ -81,7 +97,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = [
             'pk',
             'user',
-            "schedule",
+            "deliveryDay",
             'deliveryTime',
             'deliveryMade',
             'orderTime',

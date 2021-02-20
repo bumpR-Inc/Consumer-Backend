@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+#from phonenumber_field.modelfields import PhoneNumberField
 
 # Create your models here.
 class Profile(models.Model):
@@ -8,6 +9,8 @@ class Profile(models.Model):
      name = models.CharField(max_length = 60)
      email = models.EmailField(max_length = 254)
      address = models.CharField(max_length = 60) #deliveryAddress
+     #phoneNumber = models.PhoneNumberField(blank=True)
+     phoneNumber = models.CharField(max_length = 20, default= "0")
 
      def get_name(self):
          return self.name
@@ -23,7 +26,8 @@ class Restaurant(models.Model):
     generic_quota_status = models.BooleanField(default= False)
     quota = models.IntegerField()
     #schedules = models.ManyToManyField(Schedule, related_name="related_restaurant")
-
+    def __str__(self):
+        return self.name
 
 class MenuItem(models.Model):
      foodName = models.CharField(max_length=100)
@@ -41,21 +45,25 @@ class MenuItem(models.Model):
          return self.dietaryRestrictions
 
 
+class DeliveryDay(models.Model):
+    date = models.DateField(auto_now = False, auto_now_add = False)
+    daily_quota_status = models.BooleanField(default= False)
+    quota = models.IntegerField()
 
-class Schedule(models.Model):
+
+class RestaurantDeliveryDay(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete= models.PROTECT, related_name= 'schedules')
+    deliveryDay = models.ForeignKey(DeliveryDay, on_delete= models.CASCADE, related_name= 'restaurant_deliveryDays', default= None)
     date = models.DateField(auto_now = False, auto_now_add = False)
     specific_quota_status = models.BooleanField(default= False)
     quota = models.IntegerField()
-    numOrders = models.IntegerField()
-    #orders = modelsrs.ForeignKey(Order, related_name="schedules")
-
+    #orders = models.ForeignKey(Order, related_name="schedules")
 
 
 class Order(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name= "orders_of_user")
     #restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, related_name= "orders" )
-    schedule = models.ForeignKey(Schedule, on_delete=models.PROTECT, related_name= "orders")
+    deliveryDay = models.ForeignKey(DeliveryDay, on_delete=models.PROTECT, related_name= "orders", default=None)
     deliveryTime= models.DateTimeField(auto_now= False, auto_now_add= False)
     deliveryMade = models.BooleanField(default=False)
     orderTime = models.DateTimeField(auto_now_add = True)

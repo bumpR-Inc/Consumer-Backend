@@ -69,11 +69,6 @@ def public(request):
 def private(request):
     return JsonResponse({'message': 'Hello from a private endpoint! You need to be authenticated to see this.'})
 
-@api_view(['GET'])
-@requires_scope('read:connections')
-def private_scoped(request):
-    return JsonResponse({'message': 'Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this.'})
-
 # def email_preview(request):
 #     return render(request, 'email.html', {'employee': 'Bob', 'manager': 'Samantha'})
 
@@ -129,35 +124,92 @@ class MenuItemCreate(generics.CreateAPIView):
     serializer_class = MenuItemSerializer
 
 @permission_classes([AllowAny])
-class ScheduleViewSet(viewsets.ModelViewSet):
-    queryset = Schedule.objects.all().order_by('date')
-    serializer_class = ScheduleSerializer
+class DeliveryDayViewSet(viewsets.ModelViewSet):
+    queryset = DeliveryDay.objects.all().order_by('date')
+    serializer_class = DeliveryDaySerializer
 
 @permission_classes([AllowAny]) 
-class ScheduleDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Schedule.objects.all().order_by('date')
-    serializer_class = ScheduleSerializer
+class DeliveryDayDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = DeliveryDay.objects.all().order_by('date')
+    serializer_class = DeliveryDaySerializer
 
 @permission_classes([AllowAny])
-class ScheduleCreate(generics.CreateAPIView):
-    queryset = Schedule.objects.all().order_by('restaurant')
-    serializer_class = ScheduleSerializer
+class DeliveryDayCreate(generics.CreateAPIView):
+    queryset = DeliveryDay.objects.all().order_by('date')
+    serializer_class = DeliveryDaySerializer
+
+@permission_classes([AllowAny])
+class RestaurantDeliveryDayViewSet(viewsets.ModelViewSet):
+    queryset = RestaurantDeliveryDay.objects.all().order_by('date')
+    serializer_class = RestaurantDeliveryDaySerializer
+
+@permission_classes([AllowAny]) 
+class RestaurantDeliveryDayDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = RestaurantDeliveryDay.objects.all().order_by('date')
+    serializer_class = RestaurantDeliveryDaySerializer
+
+@permission_classes([AllowAny])
+class RestaurantDeliveryDayCreate(generics.CreateAPIView):
+    queryset = RestaurantDeliveryDay.objects.all().order_by('date')
+    serializer_class = RestaurantDeliveryDaySerializer
 
 @permission_classes([AllowAny])
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all().order_by('restaurant')
+    queryset = Order.objects.all().order_by('deliveryTime')
     serializer_class = OrderSerializer
 
 @permission_classes([AllowAny])
 class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Order.objects.all().order_by('restaurant')
+    queryset = Order.objects.all().order_by('deliveryTime')
     serializer_class = OrderSerializer
+
+@permission_classes([AllowAny])
+class OrderItemViewSet(viewsets.ModelViewSet):
+    queryset = OrderItem.objects.all().order_by('order')
+    serializer_class = OrderItemSerializer
 
 # @permission_classes([AllowAny])
 # class OrderCreate(generics.CreateAPIView):
 #     queryset = Order.objects.all().order_by('restaurant')
 #     serializer_class = OrderSerializer
 
+#MVP
+@api_view(['POST'])
+def scheduleParent(request, date, quota):
+    date_time_obj = datetime.strptime(date, '%Y-%m-%d')
+    if quota == 0:
+        q = False
+    else:
+        q = True
+
+    deliveryDay = DeliveryDay(
+        date = date_time_obj,
+        quota = quota,
+        daily_quota_status = q
+    )
+    deliveryDay.save()
+
+    for restaurant in Restaurant.objects.all():
+        restaurantDeliveryDay = RestaurantDeliveryDay(
+            restaurant= restaurant,
+            deliveryDay = deliveryDay,
+            date = date_time_obj,
+            specific_quota_status=q,
+            quota = quota
+        )
+        restaurantDeliveryDay.save()
+
+#MVP
+@api_view(['POST'])
+def updatePhoneNumber(request):
+    profile = Profile.objects.get(user = request.user)
+    if not profile.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    profile.phoneNumber = request.data
+
+
+#MVP
 #@permission_classes([AllowAny])
 #get current day schedule, if doesnt exist, create a new
 #add to popularity of menuItem
@@ -168,33 +220,25 @@ def OrderCreate(request):
 
     serialized = OrderCreateSerializer(data=request.data)
     print(serialized.is_valid())
+    if(not serializers.is_valid()):
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     user = Profile.objects.get(user = request.user)
-    if user is None:
-        return("You must be logged in to order!")
+    if not user.exists():
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
     
     date = request.data['deliveryTime']
     date_time_obj = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
     menuItems = request.data['menuItems']
-    restaurant = MenuItem.objects.get(pk = menuItems[1]).restaurant
 
-    if not Schedule.objects.filter(date = date_time_obj).exists():
-        schedule = Schedule(
-            restaurant = restaurant,
-            date = date_time_obj,
-            specific_quota_status = False,
-            quota = 0,
-            numOrders =1
-        )
-        schedule.save()
-    else:
-        schedule = Schedule.objects.get(date = date_time_obj)
-        schedule.numOrders += 1
-
+    date = date_time_obj.date()
+    deliveryDay = DeliveryDay.objects.get(date = date)
+    if not deliveryDay.exists():
+        return Response(status=status.HTTP_403_FORBIDDEN)
     
     if serialized.is_valid():
         order = Order(
-            user = Profile.objects.get(user = request.user),
-            schedule = schedule,
+            user = user,
+            deliveryDay= deliveryDay,
             orderTime = datetime.now(),
             deliveryMade = False,
             deliveryTime = request.data['deliveryTime'],
@@ -216,138 +260,180 @@ def OrderCreate(request):
             menuItem.popularity += 1
     return Response(serialized.data, status=status.HTTP_201_CREATED)
     
-
+#MVP
 #returns orders of specific user
 @permission_classes([AllowAny])
 @api_view(['GET'])
 def user_orders(request, user):
-    
-    orders = Order.objects.filter(user = request.user)
-    if orders is None:
-        return None
 
+    user = Profile.objects.get(user = request.user)
+    if not user.exists():
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    orders = Order.objects.filter(user = user)
+    if not orders.exists():
+        return JsonResponse({'message':'No orders found for this user'})
+        
     serializer = OrderSerializer(orders, many= True)
 
     # if serializer.is_valid():
     #     print(serializer)
     #     serializer.save()
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.data, status=status.HTTP_302_FOUND)
     # else:
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+#MVP
 #return orders of user past current time
 @permission_classes([AllowAny])
 @api_view(['GET'])
 def user_current_orders(request, user):
 
-    orders = Order.objects.filter(user = request.user)
-    if orders is None:
-        return None
+    user = Profile.objects.get(user = request.user)
+    if not user.exists():
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    orders = Order.objects.filter(user = user)
+    if not orders.exists():
+        return JsonResponse({'message':'No orders found for this user'})
+
 
     orders = [x for x in orders if (x.deliveryTime.timestamp() > datetime.now().timestamp() and x.deliveryMade is False)]
-    if orders is None:
-        print(orders)
-        return None
+    if not orders.exists():
+        return JsonResponse({'message':'No current orders found for this user'})
+
 
     serializer = OrderSerializer(orders, many= True)
 
     # if serializer.is_valid():
     #     print(serializer)
     #     serializer.save()
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.data, status=status.HTTP_302_FOUND)
     # else:
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-#return orders of specific restaurant after now (unfulfilled)
-
+#MVP
+#return orders on a specific date
 @api_view(['GET'])
-@permission_classes([AllowAny])
-def restaurant_orders(request, restaurant):
+def dateOrders(request, date):
+    date_time_obj = datetime.strptime(date, '%Y-%m-%d')
+    deliveryDay = DeliveryDay.objects.get(date = date)
 
-    schedules = Schedule.objects.filter(date__gte = datetime.now().date(), restaurant= restaurant)
-    if not schedules.exists():
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    print(schedules)
-    orders = []
-    for schedule in schedules:
-        orders.append(Order.objects.filter(schedule = schedule))
-
-    if orders is []:
+    if not deliveryDay.exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    print(orders)
-    orders = [x for x in orders if (x[0].deliveryTime.timestamp() > datetime.now().timestamp() or x[0].deliveryMade is False)]
-    if orders is []:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    orders = Order.objects.filter(deliveryDay=deliveryDay)
 
-    print(orders)
-    serializer = OrderSerializer(orders[0], many= True)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-
-
-#return orders of specific restaurant after now for same day (unfulfilled)
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def restaurant_current_orders(request, restaurant):
-
-
-    schedule = Schedule.objects.filter(date= datetime.now().date(), restaurant= restaurant)
-    if not schedule.exists():
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    orders = Order.objects.filter(schedule = schedule[0])
-    if not orders.exists():
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-
-    orders = [x for x in orders if (x.deliveryTime.timestamp() > datetime.now().timestamp() or x.deliveryMade is False)]
     if not orders.exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     serializer = OrderSerializer(orders, many= True)
+    return Response(serializer.data, status=status.HTTP_302_FOUND)
 
-    # if serializer.is_valid():
-    #     print(serializer)
-    #     serializer.save()
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
-    # else:
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#MVP
+#return number of orders on a specific date
+@api_view(['GET'])
+def numOrders(request, date):
+    date_time_obj = datetime.strptime(date, '%Y-%m-%d')
+    deliveryDay = DeliveryDay.objects.get(date = date)
 
-#return restaurant orders on a specific date (fulfilled & unfulfilled)
+    if not deliveryDay.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    orders = Order.objects.filter(deliveryDay=deliveryDay)
+
+    if not orders.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    numOrders = orders.count()
+    return JsonResponse({'message':'Orders:' + numOrders})
+
+#MVP
+#return restaurant orderItems on a specific date (fulfilled & unfulfilled)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def restaurant_day_orders(request, restaurant, date):
 
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
+    deliveryDay = DeliveryDay.objects.get(date = date)
 
-
-    schedule = Schedule.objects.filter(date = date_time_obj.date(), restaurant=restaurant)
-    if not schedule.exists():
+    if not deliveryDay.exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    
-    orders = Order.objects.filter(schedule = schedule[0])
+
+    orders = Order.objects.filter(deliveryDay=deliveryDay)
+
     if not orders.exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    
-    #%H:%M:%S.%f')
-    # orders = [x for x in orders if x.deliveryTime.date() == date_time_obj.date()]
-    # if orders is None:
-    #     return None
-    #print(orders)
-    serializer = OrderSerializer(orders, many= True)
-    #print(serializer.data)
-    # if serializer.is_valid():
-    #     print(serializer)
-    #     serializer.save()
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
-    # else:
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    orderItems = []
+    for order in orders:
+        orderItems.append(OrderItem.objects.filter(order = order))
+
+    serializer = OrderItemSerializer(orderItems[0], many= True)
+
+    if orders is []:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+    return Response(serializer.data, status=status.HTTP_302_FOUND)
+
+
+
+#return orders of specific restaurant after now (unfulfilled)
+
+# @api_view(['GET'])
+# @permission_classes([AllowAny])
+# def restaurant_orders(request, restaurant):
+
+#     schedules = Schedule.objects.filter(date__gte = datetime.now().date(), restaurant= restaurant)
+#     if not schedules.exists():
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#     print(schedules)
+#     orders = []
+#     for schedule in schedules:
+#         orders.append(Order.objects.filter(schedule = schedule))
+
+#     if orders is []:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+
+#     print(orders)
+#     orders = [x for x in orders if (x[0].deliveryTime.timestamp() > datetime.now().timestamp() or x[0].deliveryMade is False)]
+#     if orders is []:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+
+#     print(orders)
+#     serializer = OrderSerializer(orders[0], many= True)
+#     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+
+#return orders of specific restaurant after now for same day (unfulfilled)
+# @api_view(['GET'])
+# @permission_classes([AllowAny])
+# def restaurant_current_orders(request, restaurant):
+
+
+#     schedule = Schedule.objects.filter(date= datetime.now().date(), restaurant= restaurant)
+#     if not schedule.exists():
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#     orders = Order.objects.filter(schedule = schedule[0])
+#     if not orders.exists():
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+#     orders = [x for x in orders if (x.deliveryTime.timestamp() > datetime.now().timestamp() or x.deliveryMade is False)]
+#     if not orders.exists():
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+
+#     serializer = OrderSerializer(orders, many= True)
+
+#     # if serializer.is_valid():
+#     #     print(serializer)
+#     #     serializer.save()
+#     return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     # else:
+#     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 

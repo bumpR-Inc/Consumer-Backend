@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'rest_framework_jwt',
     'django_extensions',
     'corsheaders',
-    'social_django'
+    'social_django',
+    #'phonenumber_field',
 
 ]
 
