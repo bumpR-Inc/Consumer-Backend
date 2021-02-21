@@ -184,7 +184,7 @@ def scheduleParent(request, date, quota):
         q = True
 
     deliveryDay = DeliveryDay.objects.filter(date = date_time_obj)
-    if not deliveryDay.exists():
+    if deliveryDay.exists():
         return Response("Cannot create more than one deliveryDay for one date", status=status.HTTP_403_FORBIDDEN)
 
     deliveryDay = DeliveryDay(
@@ -203,7 +203,8 @@ def scheduleParent(request, date, quota):
             quota = quota
         )
         restaurantDeliveryDay.save()
-        return Response(status=status.HTTP_201_CREATED)
+        serializer = DeliveryDaySerializer(deliveryDay)
+        return Response(serializer, status=status.HTTP_201_CREATED)
 
 #MVP
 @api_view(['POST'])
