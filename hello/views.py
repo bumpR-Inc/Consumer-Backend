@@ -273,8 +273,6 @@ def OrderCreate(request):
 def user_orders(request, user):
 
     user = Profile.objects.get(user = request.user)
-    if not user.exists():
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     orders = Order.objects.filter(user = user)
     if not orders.exists():
