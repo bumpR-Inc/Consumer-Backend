@@ -184,7 +184,7 @@ def scheduleParent(request, date, quota):
         q = True
 
     deliveryDay = DeliveryDay.objects.filter(date = date_time_obj)
-    if deliveryDay is not []:
+    if not deliveryDay.exists():
         return Response("Cannot create more than one deliveryDay for one date", status=status.HTTP_403_FORBIDDEN)
 
     deliveryDay = DeliveryDay(
