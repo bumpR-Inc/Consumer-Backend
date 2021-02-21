@@ -220,7 +220,7 @@ def OrderCreate(request):
 
     serialized = OrderCreateSerializer(data=request.data)
     print(serialized.is_valid())
-    if(not serializers.is_valid()):
+    if(not serialized.is_valid()):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     user = Profile.objects.get(user = request.user)
     if not user.exists():
