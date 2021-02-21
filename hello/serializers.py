@@ -91,12 +91,21 @@ class MenuItemSerializer(serializers.ModelSerializer):
         ]
 
 class OrderSerializer(serializers.ModelSerializer):
+    user_info = serializers.SerializerMethodField(read_only=True)
+    
+
+    def get_user_info(self,obj):
+        user=obj.user
+        serializer=ProfileSerializer(user)
+        return serializer.data
+
 
     class Meta:
         model = Order
         fields = [
             'pk',
             'user',
+            'user_info',
             "deliveryDay",
             'deliveryTime',
             'deliveryMade',

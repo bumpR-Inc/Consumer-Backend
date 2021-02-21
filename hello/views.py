@@ -175,12 +175,17 @@ class OrderItemViewSet(viewsets.ModelViewSet):
 
 #MVP
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def scheduleParent(request, date, quota):
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
     if quota == 0:
         q = False
     else:
         q = True
+
+    deliveryDay = DeliveryDay.objects.filter(date = date_time_obj)
+    if deliveryDay.exists():
+        return Response("Cannot create more than one deliveryDay for one date", status=status.HTTP_403_FORBIDDEN)
 
     deliveryDay = DeliveryDay(
         date = date_time_obj,
@@ -198,6 +203,8 @@ def scheduleParent(request, date, quota):
             quota = quota
         )
         restaurantDeliveryDay.save()
+        serializer = DeliveryDaySerializer(deliveryDay)
+        return Response(serializer, status=status.HTTP_201_CREATED)
 
 #MVP
 @api_view(['POST'])
@@ -207,6 +214,7 @@ def updatePhoneNumber(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     profile.phoneNumber = request.data
+    return Response(status=status.HTTP_201_CREATED)
 
 
 #MVP
@@ -220,11 +228,9 @@ def OrderCreate(request):
 
     serialized = OrderCreateSerializer(data=request.data)
     print(serialized.is_valid())
-    if(not serializers.is_valid()):
+    if(not serialized.is_valid()):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     user = Profile.objects.get(user = request.user)
-    if not user.exists():
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
     
     date = request.data['deliveryTime']
     date_time_obj = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
@@ -232,7 +238,7 @@ def OrderCreate(request):
 
     date = date_time_obj.date()
     deliveryDay = DeliveryDay.objects.get(date = date)
-    if not deliveryDay.exists():
+    if deliveryDay is None:
         return Response(status=status.HTTP_403_FORBIDDEN)
     
     if serialized.is_valid():
