@@ -37,6 +37,10 @@ def jwt_get_username_from_payload_handler(payload):
             profile.name = payload.get('https://www.goodneighbor.delivery/name')
         except:
             pass
+        try:
+            profile.phoneNumber = payload.get('https://www.goodneighbor.delivery/phone_number')
+        except:
+            pass
         profile.save()
 
     return username
