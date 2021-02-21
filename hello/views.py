@@ -183,6 +183,10 @@ def scheduleParent(request, date, quota):
     else:
         q = True
 
+    deliveryDay = DeliveryDay.objects.get(date = date_time_obj)
+    if deliveryDay is not None:
+        return Response("Cannot create more than one deliveryDay for one date", status=status.HTTP_403_FORBIDDEN)
+
     deliveryDay = DeliveryDay(
         date = date_time_obj,
         quota = quota,
