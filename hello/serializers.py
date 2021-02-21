@@ -91,12 +91,21 @@ class MenuItemSerializer(serializers.ModelSerializer):
         ]
 
 class OrderSerializer(serializers.ModelSerializer):
+    user_info = serializers.SerializerMethodField(read_only=True)
+    
+
+    def get_user_info(self,obj):
+        user=obj.user
+        serializer=ProfileSerializer(user)
+        return serializer.data
+
 
     class Meta:
         model = Order
         fields = [
             'pk',
             'user',
+            'user_info',
             "deliveryDay",
             'deliveryTime',
             'deliveryMade',
@@ -116,12 +125,6 @@ class OrderCreateSerializer(serializers.Serializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     menuItem_info = serializers.SerializerMethodField(read_only=True)
     order_info = serializers.SerializerMethodField(read_only=True)
-    user_info = serializers.SerializerMethodField(read_only=True)
-    
-    def get_user_info(self,obj):
-        user=obj.user
-        serializer=ProfileSerializer(user)
-        return serializer.data
 
     def get_menuItem_info(self,obj):
         menuItem=obj.menuItem
@@ -138,7 +141,6 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem 
         fields = [
             'pk',
-            'user_info',
             'menuItem',
             'menuItem_info',
             'order',
