@@ -24,9 +24,6 @@ class ProfileSerializer(serializers.ModelSerializer):
             'phoneNumber',
         ]
 
-class OrderCreateSerializer(serializers.Serializer):
-    phoneNumber = models.CharField(max_length = 20, default= "0")
-
 class RestaurantSerializer(serializers.ModelSerializer):
 
     class Meta:
