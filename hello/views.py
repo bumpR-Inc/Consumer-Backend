@@ -249,7 +249,8 @@ def OrderCreate(request):
             deliveryMade = False,
             deliveryTime = request.data['deliveryTime'],
             location = request.data['location'],
-            pricePaid = request.data['pricePaid']
+            pricePaid = request.data['pricePaid'],
+            order_hash = request.data['order_hash'],
          )
         order.save()
 

@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'django_extensions',
     'corsheaders',
     'social_django',
-    #'phonenumber_field',
 
 ]
 
