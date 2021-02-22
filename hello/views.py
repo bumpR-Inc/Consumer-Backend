@@ -271,7 +271,7 @@ def OrderCreate(request):
 #returns orders of specific user
 @permission_classes([AllowAny])
 @api_view(['GET'])
-def user_orders(request, user):
+def user_orders(request):
 
     user = Profile.objects.get(user = request.user)
 
