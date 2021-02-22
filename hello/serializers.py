@@ -114,6 +114,38 @@ class OrderSerializer(serializers.ModelSerializer):
             'pricePaid',
         ]
 
+class OrderWithItemsSerializer(serializers.ModelSerializer):
+    user_info = serializers.SerializerMethodField(read_only=True)
+    items_info = serializers.SerializerMethodField(read_only=True)
+    
+
+    def get_user_info(self,obj):
+        user=obj.user
+        serializer=ProfileSerializer(user)
+        return serializer.data
+
+    def get_items_info(self,obj):
+        items = OrderItem.objects.filter(order=obj)
+        item_data = [OrderItemSerializer(item).data for item in items]
+        # user=obj.user
+        # serializer=ProfileSerializer(user)
+        return item_data
+
+    class Meta:
+        model = Order
+        fields = [
+            'pk',
+            'user',
+            'user_info',
+            "deliveryDay",
+            'deliveryTime',
+            'deliveryMade',
+            'orderTime',
+            'location',
+            'pricePaid',
+            'items_info'
+        ]
+
 class OrderCreateSerializer(serializers.Serializer):
     #restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, related_name= "orders" )
     deliveryTime= models.DateTimeField(auto_now= False, auto_now_add= False)
@@ -123,6 +155,22 @@ class OrderCreateSerializer(serializers.Serializer):
     pricePaid = models.FloatField()
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    menuItem_info = serializers.SerializerMethodField(read_only=True)
+
+    def get_menuItem_info(self,obj):
+        menuItem=obj.menuItem
+        serializer=MenuItemSerializer(menuItem)
+        return serializer.data
+
+    class Meta: 
+        model = OrderItem 
+        fields = [
+            'pk',
+            'menuItem',
+            'menuItem_info',
+            'order',
+        ]
+class OrderItemWithOrderSerializer(serializers.ModelSerializer):
     menuItem_info = serializers.SerializerMethodField(read_only=True)
     order_info = serializers.SerializerMethodField(read_only=True)
 

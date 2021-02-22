@@ -30,6 +30,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+def fuckaround(request):
+    return redirect('https://localhost:3000')
+
 def get_token_auth_header(request):
     """Obtains the Access Token from the Authorization Header
     """
@@ -166,7 +169,7 @@ class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
 @permission_classes([AllowAny])
 class OrderItemViewSet(viewsets.ModelViewSet):
     queryset = OrderItem.objects.all().order_by('order')
-    serializer_class = OrderItemSerializer
+    serializer_class = OrderItemWithOrderSerializer
 
 # @permission_classes([AllowAny])
 # class OrderCreate(generics.CreateAPIView):
@@ -270,20 +273,19 @@ def OrderCreate(request):
 #returns orders of specific user
 @permission_classes([AllowAny])
 @api_view(['GET'])
-def user_orders(request, user):
-
+def user_orders(request):
     user = Profile.objects.get(user = request.user)
 
-    orders = Order.objects.filter(user = user)
+    orders = Order.objects.filter(user = user).order_by('-orderTime')
     if not orders.exists():
         return JsonResponse({'message':'No orders found for this user'})
         
-    serializer = OrderSerializer(orders, many= True)
+    serializer = OrderWithItemsSerializer(orders, many= True)
 
     # if serializer.is_valid():
     #     print(serializer)
     #     serializer.save()
-    return Response(serializer.data, status=status.HTTP_302_FOUND)
+    return Response(serializer.data, status=status.HTTP_200_OK)
     # else:
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -307,7 +309,7 @@ def user_current_orders(request, user):
         return JsonResponse({'message':'No current orders found for this user'})
 
 
-    serializer = OrderSerializer(orders, many= True)
+    serializer = OrderWithItemsSerializer(orders, many= True)
 
     # if serializer.is_valid():
     #     print(serializer)
@@ -373,7 +375,7 @@ def restaurant_day_orders(request, restaurant, date):
     for order in orders:
         orderItems.append(OrderItem.objects.filter(order = order))
 
-    serializer = OrderItemSerializer(orderItems[0], many= True)
+    serializer = OrderItemWithOrderSerializer(orderItems[0], many= True)
 
     if orders is []:
         return Response(status=status.HTTP_404_NOT_FOUND)

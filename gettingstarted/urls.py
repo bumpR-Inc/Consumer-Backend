@@ -53,6 +53,7 @@ urlpatterns = [
 
     #path("admin/", admin.site.urls),
     path(r'', include(router.urls)),
+    path('fuckaround/', views.fuckaround),
     #path(r'api/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
     path('api/public', views.public),
