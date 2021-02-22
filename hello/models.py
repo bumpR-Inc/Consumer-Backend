@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-#from phonenumber_field.modelfields import PhoneNumberField
 
 # Create your models here.
 class Profile(models.Model):
@@ -68,6 +67,7 @@ class Order(models.Model):
     deliveryMade = models.BooleanField(default=False)
     orderTime = models.DateTimeField(auto_now_add = True)
     location = models.CharField(max_length = 100)
+    order_hash = models.CharField(max_length = 100)
     #menuItem=models.ForeignKey(MenuItem, on_delete=models.CASCADE, default = 0)
     pricePaid = models.FloatField()
 

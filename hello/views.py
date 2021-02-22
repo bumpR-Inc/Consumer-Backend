@@ -252,7 +252,8 @@ def OrderCreate(request):
             deliveryMade = False,
             deliveryTime = request.data['deliveryTime'],
             location = request.data['location'],
-            pricePaid = request.data['pricePaid']
+            pricePaid = request.data['pricePaid'],
+            order_hash = request.data['order_hash'],
          )
         order.save()
 
@@ -274,9 +275,6 @@ def OrderCreate(request):
 @permission_classes([AllowAny])
 @api_view(['GET'])
 def user_orders(request):
-    user = Profile.objects.get(user = request.user)
-
-    orders = Order.objects.filter(user = user).order_by('-orderTime')
     if not orders.exists():
         return JsonResponse({'message':'No orders found for this user'})
         
