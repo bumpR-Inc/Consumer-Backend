@@ -245,16 +245,19 @@ def OrderCreate(request):
     if deliveryDay is None:
         return Response(status=status.HTTP_403_FORBIDDEN)
 
-    orderItemsTotal = 0
-    tax = 0
+    tax = request.data['tax']
+    deliveryFee = request.data['deliveryFee']
 
-    for m in menuItems:
-         menuItem = MenuItem.objects.get(pk = m)
-         if menuItem is not None:
-             orderItemsTotal += menuItem.price
+    # orderItemsTotal = 0
+    # tax = 0
+
+    # for m in menuItems:
+    #      menuItem = MenuItem.objects.get(pk = m)
+    #      if menuItem is not None:
+    #          orderItemsTotal += menuItem.price
              
-    tax = orderItemsTotal * 0.095
-    deliveryFee = 0.99
+    # tax = orderItemsTotal * 0.095
+    # deliveryFee = 0.99
 
     order = Order(
         user = user,
