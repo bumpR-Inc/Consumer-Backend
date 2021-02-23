@@ -245,6 +245,8 @@ def OrderCreate(request):
     if deliveryDay is None:
         return Response(status=status.HTTP_403_FORBIDDEN)
 
+    orderItemsTotal = 0
+    tax = 0
 
     for m in menuItems:
          menuItem = MenuItem.objects.get(pk = m)
@@ -284,7 +286,7 @@ def OrderCreate(request):
     return Response(serialized.data, status=status.HTTP_201_CREATED)
 
 #MVP
-@api_view(['POST'])
+@api_view(['GET'])
 def OrderPrice(request):
     serialized = OrderPriceCheckerSerializer(data=request.data)
     print(serialized.is_valid())
@@ -307,13 +309,6 @@ def OrderPrice(request):
 
     #serializedBreakdown = OrderPriceEstimateSerializer(data = priceBreakdown)
     return Response(priceBreakdown, status=status.HTTP_201_CREATED)
-
-
-
-
-
-
-    
     
 
 #MVP
@@ -322,7 +317,7 @@ def OrderPrice(request):
 @api_view(['GET'])
 def user_orders(request):
     user = Profile.objects.get(user = request.user)
-    orders = Order.objects.filter(user = user).order_by('-orderTime')
+    orders = Order.objects.filter(user = user)
     if not orders.exists():
         return JsonResponse({'message':'No orders found for this user'})
         
