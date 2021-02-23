@@ -131,6 +131,14 @@ class DeliveryDayViewSet(viewsets.ModelViewSet):
     queryset = DeliveryDay.objects.all().order_by('date')
     serializer_class = DeliveryDaySerializer
 
+    def get_queryset(self):
+        queryset = DeliveryDay.objects.all().order_by('date')
+        month = self.request.GET.get('month', None)
+
+        if month:
+            queryset = queryset.filter(date__month=month) 
+        return queryset
+
 @permission_classes([AllowAny]) 
 class DeliveryDayDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = DeliveryDay.objects.all().order_by('date')
