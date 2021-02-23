@@ -70,12 +70,16 @@ class Order(models.Model):
     order_hash = models.CharField(max_length = 100)
     #menuItem=models.ForeignKey(MenuItem, on_delete=models.CASCADE, default = 0)
     pricePaid = models.FloatField()
+    tip = models.FloatField()
+    tax = models.FloatField()
+    deliveryFee = models.FloatField()
 
 
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name= "order_items")
     menuItem = models.ForeignKey(MenuItem, on_delete = models.PROTECT, related_name="order_items")
+    price = models.FloatField()
 
     def get_menuItem(self):
          return self.menuItem

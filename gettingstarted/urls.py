@@ -76,6 +76,8 @@ urlpatterns = [
     path('api/updatePhoneNumber', views.updatePhoneNumber, name = 'updatePhoneNumber'),
     #creates an order 
     path('api/orderscreate', views.OrderCreate, name = 'ordercreate'),
+    #queries and returns a price breakdown for a given set of menuItems
+    path('api/orderprice', views.OrderPrice, name = 'orderprice'),
     #returns orders of specific user
     path('api/userOrders', views.user_orders, name = 'userOrders'),
     #return orders of user past current time

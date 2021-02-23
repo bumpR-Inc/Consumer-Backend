@@ -109,6 +109,9 @@ class OrderSerializer(serializers.ModelSerializer):
             'location',
             'order_hash',
             'pricePaid',
+            'tip',
+            'tax',
+            'deliveryFee',
         ]
 
 class OrderWithItemsSerializer(serializers.ModelSerializer):
@@ -140,7 +143,10 @@ class OrderWithItemsSerializer(serializers.ModelSerializer):
             'orderTime',
             'location',
             'pricePaid',
-            'items_info'
+            'items_info',
+            'tip',
+            'tax',
+            'deliveryFee',
         ]
 
 class OrderCreateSerializer(serializers.Serializer):
@@ -151,6 +157,15 @@ class OrderCreateSerializer(serializers.Serializer):
     #menuItem=models.ForeignKey(MenuItem, on_delete=models.CASCADE, default = 0)
     menuItems =serializers.ListField(child=serializers.IntegerField())
     pricePaid = models.FloatField()
+    tip = models.FloatField()
+
+class OrderPriceCheckerSerializer(serializers.Serializer):
+    menuItems =serializers.ListField(child=serializers.IntegerField())
+
+# class OrderPriceEstimateSerializer(serializers.Serializer):
+#     orderItemsTotal = models.FloatField()
+#     tax = models.FloatField()
+#     deliveryFee = models.FloatField()
 
 class OrderItemSerializer(serializers.ModelSerializer):
     menuItem_info = serializers.SerializerMethodField(read_only=True)
@@ -167,7 +182,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'menuItem',
             'menuItem_info',
             'order',
+            'price',
         ]
+
 class OrderItemWithOrderSerializer(serializers.ModelSerializer):
     menuItem_info = serializers.SerializerMethodField(read_only=True)
     order_info = serializers.SerializerMethodField(read_only=True)
@@ -191,6 +208,7 @@ class OrderItemWithOrderSerializer(serializers.ModelSerializer):
             'menuItem_info',
             'order',
             'order_info',
+            'price',
         ]
 
 
