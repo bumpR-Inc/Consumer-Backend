@@ -226,11 +226,11 @@ def updatePhoneNumber(request):
 #add to popularity of menuItem
 @api_view(['POST'])
 def OrderCreate(request):
-    print("finddd")
     print(request.user)
 
     serialized = OrderCreateSerializer(data=request.data)
-    print(serialized.is_valid())
+    
+
     if(not serialized.is_valid()):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     user = Profile.objects.get(user = request.user)
@@ -238,38 +238,84 @@ def OrderCreate(request):
     date = request.data['deliveryTime']
     date_time_obj = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
     menuItems = request.data['menuItems']
+    
 
     date = date_time_obj.date()
     deliveryDay = DeliveryDay.objects.get(date = date)
     if deliveryDay is None:
         return Response(status=status.HTTP_403_FORBIDDEN)
-    
-    if serialized.is_valid():
-        order = Order(
-            user = user,
-            deliveryDay= deliveryDay,
-            orderTime = datetime.now(),
-            deliveryMade = False,
-            deliveryTime = request.data['deliveryTime'],
-            location = request.data['location'],
-            pricePaid = request.data['pricePaid'],
-            order_hash = request.data['order_hash'],
-         )
-        order.save()
 
+
+    for m in menuItems:
+         menuItem = MenuItem.objects.get(pk = m)
+         if menuItem is not None:
+             orderItemsTotal += menuItem.price
+             
+    tax = orderItemsTotal * 0.095
+    deliveryFee = 0.99
+
+    order = Order(
+        user = user,
+        deliveryDay= deliveryDay,
+        orderTime = datetime.now(),
+        deliveryMade = False,
+        deliveryTime = request.data['deliveryTime'],
+        location = request.data['location'],
+        pricePaid = request.data['pricePaid'],
+        order_hash = request.data['order_hash'],
+        tip = request.data['tip'],
+        tax = tax, 
+        deliveryFee = deliveryFee,
+        )
+    order.save()
+    
     for m in menuItems:
         menuItem = MenuItem.objects.get(pk = m)
         if menuItem is not None:
-
+            
             orderItem = OrderItem(
                 order = order,
-                menuItem = menuItem
+                menuItem = menuItem,
+                price = menuItem.price,
             )
             orderItem.save()
-
             menuItem.popularity += 1
+
     return Response(serialized.data, status=status.HTTP_201_CREATED)
+
+#MVP
+@api_view(['POST'])
+def OrderPrice(request):
+    serialized = OrderPriceCheckerSerializer(data=request.data)
+    print(serialized.is_valid())
+    if(not serialized.is_valid()):
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    orderItemsTotal = 0
+    tax = 0
+    deliveryFee = 0.99
+
+
+    menuItems = request.data['menuItems']
+    for m in menuItems:
+        menuItem = MenuItem.objects.get(pk = m)
+        if menuItem is not None:
+            orderItemsTotal += menuItem.price
+
+    tax = orderItemsTotal * 0.095
+
+    priceBreakdown = {"orderItemsTotal": orderItemsTotal, "tax": tax, "deliveryFee": deliveryFee}
+
+    #serializedBreakdown = OrderPriceEstimateSerializer(data = priceBreakdown)
+    return Response(priceBreakdown, status=status.HTTP_201_CREATED)
+
+
+
+
+
+
     
+    
+
 #MVP
 #returns orders of specific user
 @permission_classes([AllowAny])
