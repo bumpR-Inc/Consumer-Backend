@@ -207,7 +207,7 @@ def scheduleParent(request, date, quota):
         )
         restaurantDeliveryDay.save()
     serializer = DeliveryDaySerializer(deliveryDay)
-    return Response(serializer, status=status.HTTP_201_CREATED)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 #MVP
 @api_view(['POST'])
