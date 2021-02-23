@@ -19,6 +19,11 @@ ALLOWED_HOSTS += ['.herokuapp.com']
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.postgresql',
+		'NAME': 'mydatabase',
+		'USER': 'yxwcweadgrqons',
+		'PASSWORD': 'a6db2dac0bf38934fa2f2a54b42b72378d159cff1799b9ab0026f4393dca93e3',
+		'HOST': 'ec2-3-95-85-91.compute-1.amazonaws.com',
+		'PORT': '5432'
 	}
 }
 
