@@ -30,7 +30,7 @@ def jwt_get_username_from_payload_handler(payload):
         )
 
         try:
-            profile.email = user.email
+            profile.email = payload.get('https://www.goodneighbor.delivery/email')
         except:
             pass
         try:
