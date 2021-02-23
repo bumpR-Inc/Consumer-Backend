@@ -22,7 +22,7 @@ import dj_database_url
 CORS_ORIGIN_ALLOW_ALL = True # If this is used then `CORS_ORIGIN_WHITELIST` will not have any effect
 CORS_ALLOW_CREDENTIALS = True
 ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost', "http://localhost:3000", "https://localhost:3000"]
-CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "https://localhost:3000", "https://localhost:3001", "http://localhost:3001", "https://localhost:3002", "http://localhost:3002", "http://localhost:3002", "http://goodneighbor.delivery",  "https://goodneighbor.delivery"]
+CORS_ORIGIN_WHITELIST = ["http://localhost:3000", "https://localhost:3000", "https://localhost:3001", "http://localhost:3001", "https://localhost:3002", "http://localhost:3002", "http://localhost:3002", "http://www.goodneighbor.delivery",  "https://www.goodneighbor.delivery"]
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
