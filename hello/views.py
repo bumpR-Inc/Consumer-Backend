@@ -134,9 +134,10 @@ class DeliveryDayViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = DeliveryDay.objects.all().order_by('date')
         month = self.request.GET.get('month', None)
+        year = self.request.GET.get('year', None)
 
-        if month:
-            queryset = queryset.filter(date__month=month) 
+        if month and year:
+            queryset = queryset.filter(date__month=month, date__year=year) 
         return queryset
 
 @permission_classes([AllowAny]) 
