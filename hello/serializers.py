@@ -171,10 +171,17 @@ class OrderPriceCheckerSerializer(serializers.Serializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     menuItem_info = serializers.SerializerMethodField(read_only=True)
+    order_info = serializers.SerializerMethodField(read_only=True)
+
 
     def get_menuItem_info(self,obj):
         menuItem=obj.menuItem
         serializer=MenuItemSerializer(menuItem)
+        return serializer.data
+
+     def get_order_info(self,obj):
+        order=obj.order
+        serializer=OrderSerializer(order)
         return serializer.data
 
     class Meta: 
@@ -184,6 +191,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'menuItem',
             'menuItem_info',
             'order',
+            'order_info',
             'price',
         ]
 
