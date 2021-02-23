@@ -374,6 +374,7 @@ def user_current_orders(request, user):
 
 #MVP
 #return orders on a specific date
+@permission_classes([AllowAny])
 @api_view(['GET'])
 def dateOrders(request, date):
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
