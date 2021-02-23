@@ -374,8 +374,8 @@ def user_current_orders(request, user):
 
 #MVP
 #return orders on a specific date
-@permission_classes([AllowAny])
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def dateOrders(request, date):
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
     deliveryDay = DeliveryDay.objects.get(date = date)
@@ -394,6 +394,7 @@ def dateOrders(request, date):
 #MVP
 #return number of orders on a specific date
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def numOrders(request, date):
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
     deliveryDay = DeliveryDay.objects.get(date = date)
