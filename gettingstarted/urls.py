@@ -78,13 +78,13 @@ urlpatterns = [
     path('api/orderscreate', views.OrderCreate, name = 'ordercreate'),
     #queries and returns a price breakdown for a given set of menuItems
     path('api/orderprice', views.OrderPrice, name = 'orderprice'),
-    #returns orders of specific user
+    #returns orders of specific user-MVP
     path('api/userOrders', views.user_orders, name = 'userOrders'),
-    #return orders of user past current time
+    #return orders of user past current time-MVP
     path('api/userCurrentOrders', views.user_current_orders, name = 'userCurrentOrders'),
-    #return all orders on a specific date
+    #return all orders on a specific date-MVP
     path('api/dateOrders/<date>/', views.dateOrders, name = 'dateOrders'),
-    #return number of orders on a specific date
+    #return number of orders on a specific date-MVP
     path('api/numOrders/<date>/', views.numOrders, name = 'numOrders'),
 
     #return orders of specific restaurant after now

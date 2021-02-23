@@ -344,7 +344,7 @@ def user_orders(request):
     # else:
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#MVP
+
 #return orders of user past current time
 @permission_classes([AllowAny])
 @api_view(['GET'])
@@ -376,11 +376,12 @@ def user_current_orders(request, user):
 #MVP
 #return orders on a specific date
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def dateOrders(request, date):
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
     deliveryDay = DeliveryDay.objects.get(date = date)
 
-    if not deliveryDay.exists():
+    if deliveryDay is None:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     orders = Order.objects.filter(deliveryDay=deliveryDay)
@@ -394,11 +395,12 @@ def dateOrders(request, date):
 #MVP
 #return number of orders on a specific date
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def numOrders(request, date):
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
     deliveryDay = DeliveryDay.objects.get(date = date)
 
-    if not deliveryDay.exists():
+    if deliveryDay is None:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     orders = Order.objects.filter(deliveryDay=deliveryDay)
@@ -407,7 +409,7 @@ def numOrders(request, date):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     numOrders = orders.count()
-    return JsonResponse({'message':'Orders:' + numOrders})
+    return JsonResponse({'message':'Orders:' + str(numOrders)})
 
 #MVP
 #return restaurant orderItems on a specific date (fulfilled & unfulfilled)
