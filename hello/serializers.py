@@ -179,10 +179,10 @@ class OrderItemSerializer(serializers.ModelSerializer):
         serializer=MenuItemSerializer(menuItem)
         return serializer.data
 
-     def get_order_info(self,obj):
-        order=obj.order
-        serializer=OrderSerializer(order)
-        return serializer.data
+    def get_order_info(self,obj):
+         order=obj.order
+         serializer=OrderSerializer(order)
+         return serializer.data
 
     class Meta: 
         model = OrderItem 
