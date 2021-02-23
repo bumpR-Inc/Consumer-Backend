@@ -399,7 +399,7 @@ def numOrders(request, date):
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
     deliveryDay = DeliveryDay.objects.get(date = date)
 
-    if not deliveryDay.exists():
+    if deliveryDay is None:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     orders = Order.objects.filter(deliveryDay=deliveryDay)
