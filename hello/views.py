@@ -343,7 +343,7 @@ def user_orders(request):
     # else:
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#MVP
+
 #return orders of user past current time
 @permission_classes([AllowAny])
 @api_view(['GET'])
@@ -380,7 +380,7 @@ def dateOrders(request, date):
     date_time_obj = datetime.strptime(date, '%Y-%m-%d')
     deliveryDay = DeliveryDay.objects.get(date = date)
 
-    if not deliveryDay.exists():
+    if deliveryDay is None:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     orders = Order.objects.filter(deliveryDay=deliveryDay)
