@@ -158,6 +158,8 @@ class OrderCreateSerializer(serializers.Serializer):
     menuItems =serializers.ListField(child=serializers.IntegerField())
     pricePaid = models.FloatField()
     tip = models.FloatField()
+    tax = models.FloatField()
+    deliveryFee = models.FloatField()
 
 class OrderPriceCheckerSerializer(serializers.Serializer):
     menuItems =serializers.ListField(child=serializers.IntegerField())
