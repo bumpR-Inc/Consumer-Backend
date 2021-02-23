@@ -317,7 +317,7 @@ def OrderPrice(request):
 @api_view(['GET'])
 def user_orders(request):
     user = Profile.objects.get(user = request.user)
-    orders = Order.objects.filter(user = user)
+    orders = Order.objects.filter(user = user).order_by('-orderTime')
     if not orders.exists():
         return JsonResponse({'message':'No orders found for this user'})
         
