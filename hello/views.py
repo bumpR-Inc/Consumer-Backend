@@ -321,6 +321,8 @@ def OrderPrice(request):
 @permission_classes([AllowAny])
 @api_view(['GET'])
 def user_orders(request):
+    user = Profile.objects.get(user = request.user)
+    orders = Order.objects.filter(user = user)
     if not orders.exists():
         return JsonResponse({'message':'No orders found for this user'})
         
