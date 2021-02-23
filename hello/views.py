@@ -408,7 +408,7 @@ def numOrders(request, date):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     numOrders = orders.count()
-    return JsonResponse({'message':'Orders:' + numOrders})
+    return JsonResponse({'message':'Orders:' + str(numOrders)})
 
 #MVP
 #return restaurant orderItems on a specific date (fulfilled & unfulfilled)
