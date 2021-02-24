@@ -91,7 +91,7 @@ class Order(models.Model):
 
 
     def __str__(self):
-        return self.location
+        return self.location + " " + user.name
         #return str(self.order_hash + " " + datetime.strftime(self.deliveryTime, '%Y-%m-%d'))
 
 
