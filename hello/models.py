@@ -68,7 +68,7 @@ class RestaurantDeliveryDay(models.Model):
     #orders = models.ForeignKey(Order, related_name="schedules")
 
     def __str__(self):
-        return self.restaurant.name + " " + str(self.date)
+        return self.restaurant.name + " " +datetime.strptime(self.date, '%Y-%m-%d')
 
 
 class Order(models.Model):
@@ -88,7 +88,7 @@ class Order(models.Model):
 
 
     def __str__(self):
-        return self.order_hash + " " + str(self.deliveryTime)
+        return self.order_hash + " " + datetime.strptime(self.deliveryTime, '%Y-%m-%d')
 
 
 
