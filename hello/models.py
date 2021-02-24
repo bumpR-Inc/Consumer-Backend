@@ -16,6 +16,9 @@ class Profile(models.Model):
     
      def get_email(self):
          return self.email
+         
+     def __str__(self):
+        return self.name
 
 class Restaurant(models.Model):
     name = models.CharField(max_length = 100)
@@ -43,11 +46,17 @@ class MenuItem(models.Model):
      def get_dietaryRestrictions(self):
          return self.dietaryRestrictions
 
+     def __str__(self):
+        return self.foodName + " " + self.restaurant.name
+
 
 class DeliveryDay(models.Model):
     date = models.DateField(auto_now = False, auto_now_add = False)
     daily_quota_status = models.BooleanField(default= False)
     quota = models.IntegerField()
+
+    def __str__(self):
+        return self.date
 
 
 class RestaurantDeliveryDay(models.Model):
@@ -57,6 +66,9 @@ class RestaurantDeliveryDay(models.Model):
     specific_quota_status = models.BooleanField(default= False)
     quota = models.IntegerField()
     #orders = models.ForeignKey(Order, related_name="schedules")
+
+    def __str__(self):
+        return self.restaurant.name + " " + self.date
 
 
 class Order(models.Model):
@@ -75,6 +87,10 @@ class Order(models.Model):
     deliveryFee = models.FloatField()
 
 
+    def __str__(self):
+        return self.order_hash + " " + self.deliveryTime
+
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name= "order_items")
@@ -83,6 +99,9 @@ class OrderItem(models.Model):
 
     def get_menuItem(self):
          return self.menuItem
+
+    def __str__(self):
+        return self.menuItem.foodName 
 
 
 # class Restaurant(models.Model):
