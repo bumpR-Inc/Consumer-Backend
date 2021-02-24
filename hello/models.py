@@ -57,7 +57,8 @@ class DeliveryDay(models.Model):
     quota = models.IntegerField()
 
     def __str__(self):
-        return self.date
+        return str(self.id)
+        #return self.date
 
 
 class RestaurantDeliveryDay(models.Model):
@@ -69,7 +70,8 @@ class RestaurantDeliveryDay(models.Model):
     #orders = models.ForeignKey(Order, related_name="schedules")
 
     def __str__(self):
-        return self.restaurant.name + " " +datetime.strptime(self.date, '%Y-%m-%d')
+        return self.restaurant.name
+        #return str(self.restaurant.name + " " +datetime.strftime(self.date, '%Y-%m-%d'))
 
 
 class Order(models.Model):
@@ -89,7 +91,8 @@ class Order(models.Model):
 
 
     def __str__(self):
-        return self.order_hash + " " + datetime.strptime(self.deliveryTime, '%Y-%m-%d')
+        return self.location
+        #return str(self.order_hash + " " + datetime.strftime(self.deliveryTime, '%Y-%m-%d'))
 
 
 
