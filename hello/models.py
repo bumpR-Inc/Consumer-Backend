@@ -24,7 +24,7 @@ class Profile(models.Model):
 class Restaurant(models.Model):
     name = models.CharField(max_length = 100)
     location = models.CharField(max_length = 100)
-    picture_url = models.CharField(max_length = 160)
+    picture_url = models.CharField(max_length = 250)
     #menuItems = models.ManyToManyField(MenuItem, related_name="food_restaurants")
     generic_quota_status = models.BooleanField(default= False)
     quota = models.IntegerField()
@@ -37,7 +37,7 @@ class MenuItem(models.Model):
      description = models.CharField(max_length=250)
      restaurant = models.ForeignKey(Restaurant, on_delete = models.CASCADE, related_name="menuItems")
      dietaryRestrictions =  models.CharField(max_length=200)
-     picture_url = models.CharField(max_length = 160)
+     picture_url = models.CharField(max_length = 250)
      price = models.FloatField()
      popularity = models.IntegerField()
 
