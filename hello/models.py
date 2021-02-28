@@ -24,7 +24,7 @@ class Profile(models.Model):
 class Restaurant(models.Model):
     name = models.CharField(max_length = 100)
     location = models.CharField(max_length = 100)
-    picture_url = models.CharField(max_length = 160)
+    picture_url = models.CharField(max_length = 250)
     #menuItems = models.ManyToManyField(MenuItem, related_name="food_restaurants")
     generic_quota_status = models.BooleanField(default= False)
     quota = models.IntegerField()
@@ -37,7 +37,7 @@ class MenuItem(models.Model):
      description = models.CharField(max_length=250)
      restaurant = models.ForeignKey(Restaurant, on_delete = models.CASCADE, related_name="menuItems")
      dietaryRestrictions =  models.CharField(max_length=200)
-     picture_url = models.CharField(max_length = 160)
+     picture_url = models.CharField(max_length = 250)
      price = models.FloatField()
      popularity = models.IntegerField()
 
@@ -57,7 +57,7 @@ class DeliveryDay(models.Model):
     quota = models.IntegerField()
 
     def __str__(self):
-        return str(self.date)
+        return str(self.id)
 
 
 class RestaurantDeliveryDay(models.Model):
@@ -69,7 +69,8 @@ class RestaurantDeliveryDay(models.Model):
     #orders = models.ForeignKey(Order, related_name="schedules")
 
     def __str__(self):
-        return self.restaurant.name + " " +datetime.strptime(self.date, '%Y-%m-%d')
+        return self.restaurant.name
+        #return str(self.restaurant.name + " " +datetime.strftime(self.date, '%Y-%m-%d'))
 
 
 class Order(models.Model):
@@ -88,8 +89,8 @@ class Order(models.Model):
     deliveryFee = models.FloatField()
 
 
-    # def __str__(self):
-    #     return self.order_hash + " " + str(self.deliveryTime)
+    def __str__(self):
+        return self.location + " " + self.user.name
 
 
 
