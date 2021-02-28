@@ -178,7 +178,7 @@ class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
 @permission_classes([AllowAny])
 class OrderItemViewSet(viewsets.ModelViewSet):
     queryset = OrderItem.objects.all().order_by('order')
-    serializer_class = OrderItemWithOrderSerializer
+    serializer_class = OrderItemSerializer
 
 # @permission_classes([AllowAny])
 # class OrderCreate(generics.CreateAPIView):
@@ -240,8 +240,10 @@ def OrderCreate(request):
     print(request.user)
 
     serialized = OrderCreateSerializer(data=request.data)
+
     
 
+    # return Response(str(serialized))
     if(not serialized.is_valid()):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     user = Profile.objects.get(user = request.user)
@@ -286,7 +288,7 @@ def OrderCreate(request):
     order.save()
     
     for m in menuItems:
-        menuItem = MenuItem.objects.get(pk = m)
+        menuItem = MenuItem.objects.get(pk = m['menuItem'])
         if menuItem is not None:
             
             orderItem = OrderItem(
@@ -295,6 +297,12 @@ def OrderCreate(request):
                 price = menuItem.price,
             )
             orderItem.save()
+            
+            for a in m['addIns']:
+                if a in [_a.pk for _a in menuItem.add_ins.all()]:
+                    addIn = AddIn.objects.get(id=a)
+                    addIn.orderItems.add(orderItem)
+
             menuItem.popularity += 1
 
     return Response(serialized.data, status=status.HTTP_201_CREATED)

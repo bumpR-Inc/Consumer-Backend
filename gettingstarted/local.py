@@ -1,3 +1,4 @@
+from os.path import sys
 from .base import *
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "CHANGE_ME!!!! (P.S. the SECRET_KEY environment variable will be used, if set, instead)."
@@ -18,6 +19,8 @@ DATABASES = {
     }
 }
 
+STATIC_ROOT = os.path.join(os.path.normpath(os.path.dirname(__file__)), 'static')
+STATIC_URL = "/static/"
 
 #Settings for sending out emails
 # EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"

@@ -57,7 +57,7 @@ class DeliveryDay(models.Model):
     quota = models.IntegerField()
 
     def __str__(self):
-        return self.date
+        return str(self.date)
 
 
 class RestaurantDeliveryDay(models.Model):
@@ -88,8 +88,8 @@ class Order(models.Model):
     deliveryFee = models.FloatField()
 
 
-    def __str__(self):
-        return self.order_hash + " " + datetime.strptime(self.deliveryTime, '%Y-%m-%d')
+    # def __str__(self):
+    #     return self.order_hash + " " + str(self.deliveryTime)
 
 
 
@@ -103,6 +103,12 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return self.menuItem.foodName 
+
+class AddIn(models.Model):
+    name = models.CharField(max_length=100)
+    price = models.FloatField()
+    menuItems = models.ManyToManyField(MenuItem, related_name='add_ins', blank=True)
+    orderItems = models.ManyToManyField(OrderItem, related_name='add_ins', blank=True)
 
 
 # class Restaurant(models.Model):
