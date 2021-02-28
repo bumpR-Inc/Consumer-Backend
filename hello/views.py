@@ -343,7 +343,7 @@ def user_orders(request):
     if not orders.exists():
         return JsonResponse({'message':'No orders found for this user'})
         
-    serializer = OrderWithItemsSerializer(orders, many= True)
+    serializer = OrderSerializer(orders, many= True)
 
     # if serializer.is_valid():
     #     print(serializer)
@@ -440,7 +440,7 @@ def restaurant_day_orders(request, restaurant, date):
     for order in orders:
         orderItems.append(OrderItem.objects.filter(order = order))
 
-    serializer = OrderItemWithOrderSerializer(orderItems[0], many= True)
+    serializer = OrderItem(orderItems[0], many= True)
 
     if orders is []:
         return Response(status=status.HTTP_404_NOT_FOUND)
