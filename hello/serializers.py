@@ -91,6 +91,10 @@ class OrderItemSerializer(serializers.ModelSerializer):
     menuItem = MenuItemSerializer()
     add_ins = AddInSerializer(many=True)
     # order = OrderSerializer()
+    user_info = serializers.SerializerMethodField()
+
+    def get_user_info(self, obj):
+        return ProfileSerializer(obj.order.user).data
 
     class Meta: 
         model = OrderItem 
@@ -99,7 +103,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'menuItem',
             'order',
             'price',
-            'add_ins'
+            'add_ins',
+            'user_info'
         ]
 
 class OrderSerializer(serializers.ModelSerializer):
