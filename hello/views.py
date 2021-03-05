@@ -260,6 +260,10 @@ def OrderCreate(request):
 
     tax = request.data['tax']
     deliveryFee = request.data['deliveryFee']
+    referralDiscount = request.data['referralDiscount']
+
+    user.referral_code_used = request.data['referral']
+    user.save()
 
     # orderItemsTotal = 0
     # tax = 0
@@ -284,6 +288,7 @@ def OrderCreate(request):
         tip = request.data['tip'],
         tax = tax, 
         deliveryFee = deliveryFee,
+        referralDiscount = referralDiscount
         )
     order.save()
     
@@ -447,6 +452,50 @@ def restaurant_day_orders(request, restaurant, date):
 
 
     return Response(serializer.data, status=status.HTTP_302_FOUND)
+
+@api_view(['GET'])
+def get_referral_code(request):
+    user = Profile.objects.get(user = request.user)
+    if not user:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+    if not user.referral_code:
+        user.generate_referral_code()
+    
+    return Response(user.referral_code)
+
+@api_view(['GET'])
+def referral_code_used(request):
+    user = Profile.objects.get(user = request.user)
+    if not user:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    return Response(True if user.referral_code_used else False)
+
+@api_view(['GET'])
+def is_referral_code_valid(request, code):
+    user = Profile.objects.get(user = request.user)
+    if not user:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    def get_resp(valid, message):
+        return Response({
+            'valid': valid,
+            'message': message
+        })
+
+    if user.referral_code_used:
+        return get_resp(False, "You've already used a referral code!")
+    
+    for other in Profile.objects.all():
+        if other.referral_code == code:
+            if user.id == other.id:
+                return get_resp(False, "You can't refer yourself!")
+            else:
+                return get_resp(True, "That works!")
+
+    return get_resp(False, "That code was not found!")
+    # return Response(user.referral_code)
 
 
 

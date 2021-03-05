@@ -93,7 +93,10 @@ urlpatterns = [
     #path('api/restaurantOrders/<restaurant>/currentOrders', views.restaurant_current_orders, name = 'restaurantCurrentOrders'),
 
     #return restaurant orders on a specific date in format YYYY-MM-DD
-    path('api/restaurantOrders/<restaurant>/<date>', views.restaurant_day_orders, name = 'restaurantDayOrders')
+    path('api/restaurantOrders/<restaurant>/<date>', views.restaurant_day_orders, name = 'restaurantDayOrders'),
+    path('api/referralCode', views.get_referral_code, name = 'getReferralCode'),
+    path('api/validReferralCode/<code>', views.is_referral_code_valid, name = 'validReferralCode'),
+    path('api/referralCodeUsed', views.referral_code_used, name = 'referralCodeUsed')
 
 
     # path(r'api/fooditem/<int:pk>/',views.FoodItemDetail.as_view(), name='foodItem_detail_view'),

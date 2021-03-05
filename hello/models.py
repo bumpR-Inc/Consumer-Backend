@@ -1,16 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
+import hashlib
+from .utils import base36encode
+import random
 
 # Create your models here.
 class Profile(models.Model):
      user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-     #user_hash = models.CharField(max_length = 60)
+     referral_code = models.CharField(max_length = 60, null=True)
+     referral_code_used = models.CharField(max_length = 60, null=True)
      name = models.CharField(max_length = 60)
      email = models.EmailField(max_length = 254)
      address = models.CharField(max_length = 60) #deliveryAddress
      #phoneNumber = models.PhoneNumberField(blank=True)
      phoneNumber = models.CharField(max_length = 20, default= "0")
+    
+     def generate_referral_code(self):
+        hasher = hashlib.sha1(str(self.id).encode('utf-8'))
+        self.referral_code = base36encode(int.from_bytes(hasher.digest(), byteorder='little'))[:6]
+        self.save()
+
 
      def get_name(self):
          return self.name
@@ -87,6 +97,7 @@ class Order(models.Model):
     tip = models.FloatField()
     tax = models.FloatField()
     deliveryFee = models.FloatField()
+    referralDiscount = models.FloatField(default=0)
 
 
     def __str__(self):
