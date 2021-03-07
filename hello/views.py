@@ -262,8 +262,9 @@ def OrderCreate(request):
     deliveryFee = request.data['deliveryFee']
     referralDiscount = request.data['referralDiscount']
 
-    user.referral_code_used = request.data['referral']
-    user.save()
+    if request.data['referral'] and len(request.data['referral']) > 0:
+        user.referral_code_used = request.data['referral']
+        user.save()
 
     # orderItemsTotal = 0
     # tax = 0
