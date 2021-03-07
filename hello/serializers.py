@@ -127,6 +127,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'tip',
             'tax',
             'deliveryFee',
+            'referralDiscount',
         ]
 
 class OrderItemCreateSerializer(serializers.Serializer):
@@ -143,7 +144,7 @@ class OrderCreateSerializer(serializers.Serializer):
     tax = models.FloatField()
     deliveryFee = models.FloatField()
     referralDiscount = models.FloatField()
-    referral = serializers.CharField(allow_null = True)
+    referral = serializers.CharField(allow_null = True, allow_blank=True)
 
 class OrderPriceCheckerSerializer(serializers.Serializer):
     menuItems = serializers.ListField(child=serializers.IntegerField())

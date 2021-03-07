@@ -245,7 +245,7 @@ def OrderCreate(request):
 
     # return Response(str(serialized))
     if(not serialized.is_valid()):
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
     user = Profile.objects.get(user = request.user)
     
     date = request.data['deliveryTime']
