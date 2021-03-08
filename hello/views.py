@@ -29,6 +29,10 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from datetime import datetime
+import pytz
+from pytz import timezone
+from django.db.models import Q
 
 def fuckaround(request):
     return redirect('https://localhost:3000')
@@ -135,6 +139,11 @@ class DeliveryDayViewSet(viewsets.ModelViewSet):
         queryset = DeliveryDay.objects.all().order_by('date')
         month = self.request.GET.get('month', None)
         year = self.request.GET.get('year', None)
+        _next = self.request.GET.get('next', False)
+
+        if _next:
+            current = datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific')).strftime("%Y-%m-%d")
+            queryset = queryset.filter(date__gt=current).order_by('date')[:1]
 
         if month and year:
             queryset = queryset.filter(date__month=month, date__year=year) 
